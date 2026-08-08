@@ -25,9 +25,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         <header>
             <nav>
                 <a href="/" class="site-title">Home</a>
+                <a href="/entries/" class="nav-link">Entries</a>
                 <div class="nav-links">
-                    <a href="/entries/" class="nav-button">Entries</a>
-                    <span class="nav-sep" aria-hidden="true"></span>
                     <a
                         href="mailto:luca.goddijn@gmail.com"
                         class="icon-link"
@@ -128,20 +127,23 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         display: flex;
         align-items: center;
         flex-wrap: wrap;
-        gap: 1rem;
-        padding: 1.75rem 0 3rem;
+        gap: 2rem;
+        padding: 1.75rem 0 1.25rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 3rem;
     }
 
-    .site-title {
+    .site-title,
+    .nav-link {
         position: relative;
         font-weight: 700;
         font-size: 1.45rem;
-        margin-right: auto;
         color: var(--accent);
         text-decoration: none;
     }
 
-    .site-title::after {
+    .site-title::after,
+    .nav-link::after {
         content: '';
         position: absolute;
         left: 0;
@@ -154,7 +156,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         transition: transform 0.2s ease;
     }
 
-    .site-title:hover::after {
+    .site-title:hover::after,
+    .nav-link:hover::after {
         transform: scaleX(1);
     }
 
@@ -162,36 +165,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         display: flex;
         align-items: center;
         gap: 1.1rem;
-    }
-
-    .nav-button {
-        display: inline-block;
-        padding: 0.375rem 1.25rem;
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        color: var(--fg);
-        font-size: 1.2rem;
-        font-weight: 500;
-        text-decoration: none;
-        transition:
-            color 0.15s ease,
-            border-color 0.15s ease,
-            background-color 0.15s ease,
-            box-shadow 0.15s ease;
-    }
-
-    .nav-button:hover {
-        color: var(--green);
-        border-color: var(--green);
-        /* fakes a 2px border without the 1px layout jump */
-        box-shadow: 0 0 0 1px var(--green);
-        background: color-mix(in srgb, var(--green) 12%, transparent);
-    }
-
-    .nav-sep {
-        width: 1px;
-        height: 1.55rem;
-        background: var(--border);
+        margin-left: auto;
     }
 
     .icon-link {
