@@ -1,0 +1,34 @@
+---
+import Base from '../../layouts/Base.astro';
+import EntryList from '../../components/EntryList.astro';
+import { sortedEntries, tagCounts } from '../../lib/entries';
+
+const entries = await sortedEntries();
+const tags = tagCounts(entries);
+---
+
+<Base title="Entries — Luca's Journal" description="All journal entries, most recently updated first.">
+    <h1>Entries</h1>
+    {
+        tags.size > 0 && (
+            <ul class="tags">
+                {[...tags.entries()].map(([tag, count]) => (
+                    <li>
+                        <a href={`/tags/${tag}/`}>
+                            {tag} ({count})
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        )
+    }
+    <div class="list">
+        {entries.length > 0 ? <EntryList entries={entries} /> : <p>Nothing here yet.</p>}
+    </div>
+</Base>
+
+<style>
+    .list {
+        margin-top: 2rem;
+    }
+</style>

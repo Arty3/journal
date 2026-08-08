@@ -1,0 +1,48 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { sortedEntries } from '../../lib/entries';
+
+export async function getStaticPaths() {
+    const entries = await sortedEntries();
+    return entries.map((entry) => ({
+        params: { id: entry.id },
+        props: { entry },
+    }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Base title={`${entry.data.title} — Luca's Journal`} description={entry.data.description}>
+    <article>
+        <header>
+            <h1>{entry.data.title}</h1>
+            <p class="description">{entry.data.description}</p>
+            {
+                entry.data.tags.length > 0 && (
+                    <ul class="tags">
+                        {entry.data.tags.map((tag) => (
+                            <li>
+                                <a href={`/tags/${tag}/`}>{tag}</a>
+                            </li>
+                        ))}
+                    </ul>
+                )
+            }
+        </header>
+        <Content />
+    </article>
+</Base>
+
+<style>
+    article > header {
+        margin-bottom: 2.5rem;
+    }
+
+    .description {
+        color: var(--muted);
+        margin: 0.5rem 0 0;
+    }
+</style>

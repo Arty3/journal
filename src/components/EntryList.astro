@@ -1,0 +1,67 @@
+---
+import type { Entry } from '../lib/entries';
+
+interface Props {
+    entries: Entry[];
+}
+
+const { entries } = Astro.props;
+---
+
+<ul class="entry-list">
+    {
+        entries.map((entry) => (
+            <li>
+                <h2>
+                    <a href={`/entries/${entry.id}/`}>{entry.data.title}</a>
+                </h2>
+                <p>{entry.data.description}</p>
+                {entry.data.tags.length > 0 && (
+                    <ul class="tags">
+                        {entry.data.tags.map((tag) => (
+                            <li>
+                                <a href={`/tags/${tag}/`}>{tag}</a>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </li>
+        ))
+    }
+</ul>
+
+<style>
+    .entry-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .entry-list > li {
+        padding: 1.25rem 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .entry-list > li:first-child {
+        padding-top: 0;
+    }
+
+    .entry-list h2 {
+        font-size: 1.15rem;
+        margin: 0;
+    }
+
+    .entry-list h2 a {
+        color: var(--fg);
+        text-decoration: none;
+    }
+
+    .entry-list h2 a:hover {
+        color: var(--accent);
+    }
+
+    .entry-list p {
+        margin: 0.35rem 0 0;
+        color: var(--muted);
+    }
+</style>

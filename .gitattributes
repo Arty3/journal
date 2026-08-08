@@ -1,0 +1,35 @@
+# Normalize line endings: LF, regardless of platform
+* text=auto eol=lf
+
+# Source and config files are always text
+*.astro        text
+*.ts           text
+*.mjs          text
+*.js           text
+*.json         text
+*.md           text
+*.mdx          text
+*.yml          text
+*.yaml         text
+*.css          text
+*.html         text
+.editorconfig  text
+.gitattributes text
+.gitignore     text
+CNAME          text
+
+# Binary assets
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.webp    binary
+*.avif    binary
+*.ico     binary
+*.svg     text
+*.woff    binary
+*.woff2   binary
+*.ttf     binary
+*.otf     binary
+*.pdf     binary
+*.zip     binary

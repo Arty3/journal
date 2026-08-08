@@ -1,0 +1,202 @@
+---
+interface Props {
+    title: string;
+    description?: string;
+}
+
+const { title, description } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{title}</title>
+        {description && <meta name="description" content={description} />}
+        <link rel="canonical" href={canonical} />
+        <meta property="og:title" content={title} />
+        {description && <meta property="og:description" content={description} />}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonical} />
+    </head>
+    <body>
+        <header>
+            <nav>
+                <a href="/" class="site-title">Luca's Journal</a>
+                <a href="/entries/">Entries</a>
+            </nav>
+        </header>
+        <main>
+            <slot />
+        </main>
+        <footer>
+            <p>
+                Content licensed under
+                <a href="https://creativecommons.org/licenses/by/4.0/" rel="license">CC BY 4.0</a>,
+                code under MIT.
+            </p>
+        </footer>
+    </body>
+</html>
+
+<style is:global>
+    :root {
+        --bg: #fdfdfc;
+        --fg: #1c1c1a;
+        --muted: #6b6b66;
+        --accent: #2c5aa0;
+        --border: #e4e4e0;
+        --tag-bg: #f0f0ec;
+        color-scheme: light dark;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg: #16161a;
+            --fg: #e6e6e2;
+            --muted: #97978f;
+            --accent: #8ab4e8;
+            --border: #2c2c32;
+            --tag-bg: #24242a;
+        }
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0 auto;
+        padding: 0 1.25rem;
+        max-width: 42rem;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    header nav {
+        display: flex;
+        align-items: baseline;
+        gap: 1.5rem;
+        padding: 1.5rem 0 2.5rem;
+    }
+
+    .site-title {
+        font-weight: 700;
+        margin-right: auto;
+    }
+
+    nav a {
+        color: var(--fg);
+        text-decoration: none;
+    }
+
+    nav a:hover {
+        color: var(--accent);
+    }
+
+    main a {
+        color: var(--accent);
+    }
+
+    h1,
+    h2,
+    h3 {
+        line-height: 1.25;
+    }
+
+    h1 {
+        font-size: 1.75rem;
+        margin-top: 0;
+    }
+
+    code {
+        font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+        font-size: 0.9em;
+        background: var(--tag-bg);
+        padding: 0.1em 0.35em;
+        border-radius: 4px;
+    }
+
+    pre {
+        padding: 1rem;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-size: 0.9rem;
+    }
+
+    pre code {
+        background: none;
+        padding: 0;
+    }
+
+    blockquote {
+        margin: 1rem 0;
+        padding-left: 1rem;
+        border-left: 3px solid var(--border);
+        color: var(--muted);
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 2rem 0;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th,
+    td {
+        border: 1px solid var(--border);
+        padding: 0.4rem 0.6rem;
+        text-align: left;
+    }
+
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        padding: 0;
+        list-style: none;
+        margin: 0.5rem 0 0;
+    }
+
+    .tags a {
+        display: inline-block;
+        background: var(--tag-bg);
+        color: var(--muted);
+        border-radius: 999px;
+        padding: 0.1rem 0.65rem;
+        font-size: 0.8rem;
+        text-decoration: none;
+    }
+
+    .tags a:hover,
+    .tags a[aria-current='page'] {
+        color: var(--accent);
+    }
+
+    footer {
+        margin-top: 4rem;
+        padding: 1.5rem 0;
+        border-top: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 0.85rem;
+    }
+
+    footer a {
+        color: inherit;
+    }
+</style>

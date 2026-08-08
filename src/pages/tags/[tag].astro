@@ -1,0 +1,28 @@
+---
+import Base from '../../layouts/Base.astro';
+import EntryList from '../../components/EntryList.astro';
+import { sortedEntries, tagCounts } from '../../lib/entries';
+
+export async function getStaticPaths() {
+    const entries = await sortedEntries();
+    return [...tagCounts(entries).keys()].map((tag) => ({
+        params: { tag },
+        props: { entries: entries.filter((entry) => entry.data.tags.includes(tag)) },
+    }));
+}
+
+const { tag } = Astro.params;
+const { entries } = Astro.props;
+---
+
+<Base title={`Tagged “${tag}” — Luca's Journal`} description={`Journal entries tagged ${tag}.`}>
+    <h1>Tagged “{tag}”</h1>
+    <p class="back"><a href="/entries/">&larr; All entries</a></p>
+    <EntryList entries={entries} />
+</Base>
+
+<style>
+    .back {
+        margin-bottom: 2rem;
+    }
+</style>
