@@ -1,12 +1,10 @@
-# journal
+# Journal
 
-My personal working journal — process and thoughts as I work through projects,
-experiments, technical adventures, research, and failed ideas.
+A public journal of projects, experiments, research, technical adventures, failed ideas, and the thoughts behind them.
 
 Live at [journal.lucagoddijn.com](https://journal.lucagoddijn.com).
 
-Built with [Astro](https://astro.build) + Markdown/MDX, deployed to GitHub
-Pages on every push to `main`.
+Built with [Astro](https://astro.build) + Markdown/MDX, deployed to GitHub Pages on every push to `main`.
 
 ## Writing
 
@@ -17,9 +15,12 @@ filename is the URL slug. Frontmatter:
 ---
 title: My entry
 description: One or two sentences shown in the entry list.
-tags: # optional
+# Optional, tags are not needed, but nice to have.
+tags:
   - experiments
-draft: true # optional — hides the entry from the built site
+  - C++
+# If true, hides the draft from public view.
+draft: true
 ---
 ```
 
@@ -34,23 +35,22 @@ The landing page copy lives directly in `src/pages/index.astro`.
 
 ```sh
 npm install
-npm run dev      # local dev server at localhost:4321
-npm run build    # production build into dist/
+
+# local dev server at localhost:4321
+npm run dev
+
+# production build into dist/
+npm run build
 ```
 
 ## Deploying
 
-Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds the
-site and publishes it to GitHub Pages. One-time repository setup:
+The journal deploys every time something is pushed into main. The workflow deploys via github pages.
+Simply make sure that your repository deploys pages via actions.
 
-1. In the repo settings under **Pages**, set the source to **GitHub Actions**.
-2. DNS (not routed yet): add a `CNAME` record for `journal.lucagoddijn.com`
-   pointing to `<github-username>.github.io`. The `public/CNAME` file already
-   declares the custom domain to GitHub Pages.
-3. Once DNS resolves, enable **Enforce HTTPS** in the Pages settings.
+For my own setup I have a CNAME record pointing the deployment to my domain.
 
 ## License
 
 - **Code** (everything except the written content): [MIT](LICENSE)
-- **Content** (`src/content/`, page prose, and authored media):
-  [CC BY 4.0](LICENSE-CONTENT)
+- **Content** (`src/content/`, page prose, and authored media): [CC BY 4.0](LICENSE-CONTENT)
