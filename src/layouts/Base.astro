@@ -24,7 +24,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <body>
         <header>
             <nav>
-                <a href="/" class="site-title">Journal Home</a>
+                <a href="/" class="site-title">Home</a>
                 <div class="nav-links">
                     <a href="/entries/" class="nav-button">Entries</a>
                     <span class="nav-sep" aria-hidden="true"></span>
@@ -85,6 +85,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         --fg: #1c1c1a;
         --muted: #6b6b66;
         --accent: #2c5aa0;
+        --green: #16a34a;
         --border: #e4e4e0;
         --tag-bg: #f0f0ec;
         color-scheme: light dark;
@@ -96,6 +97,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
             --fg: #e6e6e2;
             --muted: #97978f;
             --accent: #8ab4e8;
+            --green: #4cc273;
             --border: #2c2c32;
             --tag-bg: #24242a;
         }
@@ -108,11 +110,16 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     body {
         margin: 0 auto;
         padding: 0 1.5rem;
-        max-width: 48rem;
+        /*
+         * The column widens with the viewport (up to ~140% of its 48rem
+         * base on large monitors) while the type stays at its normal size —
+         * a more spacious layout without a zoomed-in look.
+         */
+        max-width: clamp(60rem, 39rem + 37.5vw, 84rem);
         background: var(--bg);
         color: var(--fg);
         font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-        font-size: 1.125rem;
+        font-size: 1.2rem;
         line-height: 1.7;
         -webkit-font-smoothing: antialiased;
     }
@@ -126,48 +133,64 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     }
 
     .site-title {
+        position: relative;
         font-weight: 700;
-        font-size: 1.15rem;
+        font-size: 1.45rem;
         margin-right: auto;
-        color: var(--fg);
+        color: var(--accent);
         text-decoration: none;
-        transition: color 0.15s ease;
     }
 
-    .site-title:hover {
-        color: var(--accent);
+    .site-title::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -0.2rem;
+        width: 100%;
+        height: 2px;
+        background: var(--accent);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.2s ease;
+    }
+
+    .site-title:hover::after {
+        transform: scaleX(1);
     }
 
     .nav-links {
         display: flex;
         align-items: center;
-        gap: 0.9rem;
+        gap: 1.1rem;
     }
 
     .nav-button {
         display: inline-block;
-        padding: 0.3rem 1rem;
+        padding: 0.375rem 1.25rem;
         border: 1px solid var(--border);
         border-radius: 999px;
         color: var(--fg);
-        font-size: 0.95rem;
+        font-size: 1.2rem;
         font-weight: 500;
         text-decoration: none;
         transition:
             color 0.15s ease,
             border-color 0.15s ease,
-            background-color 0.15s ease;
+            background-color 0.15s ease,
+            box-shadow 0.15s ease;
     }
 
     .nav-button:hover {
-        color: var(--accent);
-        border-color: var(--accent);
-        background: var(--tag-bg);
+        color: var(--green);
+        border-color: var(--green);
+        /* fakes a 2px border without the 1px layout jump */
+        box-shadow: 0 0 0 1px var(--green);
+        background: color-mix(in srgb, var(--green) 12%, transparent);
     }
 
     .nav-sep {
         width: 1px;
-        height: 1.25rem;
+        height: 1.55rem;
         background: var(--border);
     }
 
@@ -183,8 +206,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     }
 
     .icon-link svg {
-        width: 1.25rem;
-        height: 1.25rem;
+        width: 1.55rem;
+        height: 1.55rem;
     }
 
     main a {
@@ -198,13 +221,17 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     }
 
     h1 {
-        font-size: 2rem;
+        font-size: 2.5rem;
         margin-top: 0;
     }
 
     h2 {
-        font-size: 1.4rem;
+        font-size: 1.75rem;
         margin-top: 2.5rem;
+    }
+
+    h3 {
+        font-size: 1.35rem;
     }
 
     code {
