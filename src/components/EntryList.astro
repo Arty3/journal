@@ -38,8 +38,14 @@ const { entries } = Astro.props;
     }
 
     .entry-list > li {
-        padding: 1.25rem 0;
+        position: relative;
+        padding: 1.5rem 0;
         border-bottom: 1px solid var(--border);
+        transition: transform 0.2s ease;
+    }
+
+    .entry-list > li:hover {
+        transform: scale(1.02);
     }
 
     .entry-list > li:first-child {
@@ -47,21 +53,54 @@ const { entries } = Astro.props;
     }
 
     .entry-list h2 {
-        font-size: 1.15rem;
+        font-size: 1.6rem;
         margin: 0;
     }
 
     .entry-list h2 a {
         color: var(--fg);
         text-decoration: none;
+        /*
+         * Underline drawn as a background gradient rather than a
+         * pseudo-element: ::after is taken by the stretched link, and
+         * positioning the anchor would break that overlay's extent.
+         */
+        display: inline-block;
+        padding-bottom: 0.15rem;
+        background-image: linear-gradient(var(--accent), var(--accent));
+        background-repeat: no-repeat;
+        background-position: 0 100%;
+        background-size: 0 2px;
+        transition:
+            color 0.15s ease,
+            background-size 0.2s ease;
     }
 
-    .entry-list h2 a:hover {
+    /*
+     * Stretch the title link over the entire list item, making the
+     * whole card clickable without nesting anchors.
+     */
+    .entry-list h2 a::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+    }
+
+    .entry-list > li:hover h2 a {
         color: var(--accent);
+        background-size: 100% 2px;
     }
 
     .entry-list p {
-        margin: 0.35rem 0 0;
+        margin: 0.4rem 0 0;
         color: var(--muted);
+        font-size: 1.05rem;
+    }
+
+    /* tags sit above the stretched link so they stay clickable */
+    .entry-list .tags {
+        position: relative;
+        z-index: 1;
+        width: fit-content;
     }
 </style>

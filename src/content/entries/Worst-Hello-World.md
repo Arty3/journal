@@ -2,8 +2,8 @@
 title: Worst Hello World
 description: Like, literally the worst hello world
 tags:
-  - experiments
   - C
+  - experiments
 draft: false
 ---
 
@@ -724,7 +724,7 @@ The difference is that we've taken the scenic route through programmatic hell.
 There are two caveats worth mentioning, though:
 
 1. `_RAW[14]` has no null terminator.
-2. `__memcpy_impl` only behaves correctly for the tiny sizes this program expects.
+2. `__memcpy_impl` only behaves correctly for $n < 16$ (what this program expects).
 
 Those would absolutely be real problems in a general-purpose implementation.
 
