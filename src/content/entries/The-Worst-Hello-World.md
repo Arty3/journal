@@ -769,8 +769,8 @@ This is a programming language.
 
 An esoteric and deliberately ridiculous one, but a programming language nonetheless.
 
-And I think it's safe to say it beats mine.
+And I think it's safe to say it beats my Hello World.
 
-Anyway, thank you for reading through what I have to say!
+Anyway, thank you for reading through!
 
 As always, you can find the repository [here](https://github.com/Arty3/Worst-Hello-World/).
