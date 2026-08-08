@@ -1,5 +1,27 @@
 ---
+import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
+
+/*
+ * Photos for the "Outside this journal" section.
+ */
+const hobbyImages = import.meta.glob<{ default: ImageMetadata }>(
+    '../assets/hobbies/*.{jpg,jpeg,png,webp,avif}',
+    { eager: true },
+);
+
+const hobbies = [
+    { name: 'bouldering', caption: 'Bouldering' },
+    { name: 'music', caption: 'Music' },
+    { name: 'photography', caption: 'Photography' },
+]
+    .map((hobby) => ({
+        ...hobby,
+        image: Object.entries(hobbyImages).find(([path]) =>
+            path.includes(`/${hobby.name}.`),
+        )?.[1].default,
+    }))
+    .filter((hobby) => hobby.image);
 ---
 
 <Base
@@ -212,10 +234,36 @@ import Base from '../layouts/Base.astro';
     </p>
 
     <p>
-        I also make music, boulder, powerlift, play chess, do photography, and regularly
+        I also make music, boulder, powerlift, DJ, play chess, do photography, and regularly
         find other things to become interested in. Most of that won't appear here because
         this isn't intended to be a general diary of my life.
     </p>
+
+    {
+        hobbies.length > 0 && (
+            <>
+                <div class="hobby-photos">
+                    {hobbies.map((hobby) => (
+                        <button
+                            type="button"
+                            class="photo-button"
+                            aria-label={`View ${hobby.caption} photo full screen`}
+                        >
+                            <Image
+                                src={hobby.image!}
+                                alt={hobby.caption}
+                                widths={[480, 960]}
+                                sizes="(max-width: 640px) 100vw, 33vw"
+                            />
+                        </button>
+                    ))}
+                </div>
+                <dialog class="lightbox" aria-label="Full screen photo">
+                    <img src="" alt="" />
+                </dialog>
+            </>
+        )
+    }
 
     <p>
         Those interests do, however, influence what I work on. A software project might
@@ -292,4 +340,96 @@ import Base from '../layouts/Base.astro';
     .contact {
         padding-left: 1.25rem;
     }
+
+    .hobby-photos {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+
+    .photo-button {
+        position: relative;
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: none;
+        background: none;
+        border-radius: 10px;
+        cursor: zoom-in;
+        transition: transform 0.25s ease;
+    }
+
+    .photo-button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+
+    /*
+     * The whole tile grows over the surrounding content: transforms
+     * don't participate in layout, so nothing else moves.
+     */
+    .photo-button:hover,
+    .photo-button:focus-visible {
+        transform: scale(1.06);
+        z-index: 1;
+    }
+
+    .hobby-photos img {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        display: block;
+        border-radius: 10px;
+    }
+
+    .lightbox {
+        padding: 0;
+        border: none;
+        background: transparent;
+        max-width: 92vw;
+        max-height: 92vh;
+        cursor: zoom-out;
+    }
+
+    .lightbox::backdrop {
+        background: rgba(0, 0, 0, 0.85);
+    }
+
+    .lightbox img {
+        display: block;
+        /* fixed viewport-sized box: contain scales any aspect ratio
+           up or down to fill it, so wide images open large too */
+        width: 92vw;
+        height: 92vh;
+        object-fit: contain;
+    }
+
+    @media (max-width: 640px) {
+        .hobby-photos {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
+
+<script>
+    const lightbox = document.querySelector<HTMLDialogElement>('.lightbox');
+    const lightboxImg = lightbox?.querySelector('img');
+
+    if (lightbox && lightboxImg) {
+        for (const button of document.querySelectorAll('.photo-button')) {
+            button.addEventListener('click', () => {
+                const img = button.querySelector('img');
+                if (!img) return;
+                /* src (not currentSrc) is the full-resolution version,
+                   so the lightbox can fill the screen without blurring */
+                lightboxImg.src = img.src;
+                lightboxImg.alt = img.alt;
+                lightbox.showModal();
+            });
+        }
+
+        /* click anywhere (image or backdrop) closes; Esc works natively */
+        lightbox.addEventListener('click', () => lightbox.close());
+    }
+</script>
