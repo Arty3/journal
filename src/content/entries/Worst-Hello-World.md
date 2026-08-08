@@ -17,7 +17,7 @@ Whenever we learn a new language, framework, operating system, or really any new
 
 Conventionally, that is:
 
-> Hello, World!
+*Hello, World!*
 
 Since this is the first entry I'm writing in this journal, I thought: why not start with the worst Hello World imaginable?
 
@@ -78,7 +78,7 @@ I'm sure you've heard this before from your fifth-grade IT teacher, but it is fu
 
 Alright then, let's instruct it:
 
-> Put a `1` here. A `0` there. Another `0` there...
+> *Put a `1` here. A `0` there. Another `0` there...*
 
 Not a great experience.
 
@@ -100,7 +100,7 @@ It is what allows us to have neat little one-line Hello Worlds.
 
 So the recipe for disaster is simple:
 
-> The more abstractions we strip away, the more complicated — and therefore worse — our Hello World becomes.
+*The more abstractions we strip away, the more complicated — and therefore worse — our Hello World becomes.*
 
 Yes, that is a drastic oversimplification.
 
