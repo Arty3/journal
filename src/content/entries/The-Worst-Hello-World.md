@@ -1,5 +1,5 @@
 ---
-title: Worst Hello World
+title: The Worst Hello World
 description: Like, literally the worst hello world
 tags:
   - C
