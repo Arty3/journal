@@ -792,7 +792,7 @@ $"~>}|{zy7654ts10/o-,+lj(hgfedc!
 zyxZIutsrqSBQ@lkjihglldcba`B1j
 ```
 
-This is Malbolge, yes, like the circle of hell, and yes, this outputs "Hello World".
+This is Malbolge, yes, like the circle of hell; and yes, this outputs "Hello World".
 
 Anyway, thank you for reading through!
 
