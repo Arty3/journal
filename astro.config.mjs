@@ -7,6 +7,12 @@ export default defineConfig({
     site: 'https://journal.lucagoddijn.com',
     integrations: [mdx()],
     markdown: {
+        syntaxHighlight: {
+            type: 'shiki',
+            // Leave mermaid blocks unhighlighted so the raw diagram
+            // source reaches the client for rendering.
+            excludeLangs: ['mermaid'],
+        },
         remarkPlugins: [remarkMath],
         rehypePlugins: [rehypeKatex],
     },

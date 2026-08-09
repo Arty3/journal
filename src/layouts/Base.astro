@@ -229,11 +229,27 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         padding: 0;
     }
 
+    pre.mermaid {
+        display: flex;
+        justify-content: center;
+        background: none;
+        overflow-x: auto;
+    }
+
+    .pdf-embed {
+        display: block;
+        width: 100%;
+        height: min(80vh, 60rem);
+        margin: 1.5rem 0;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+    }
+
     blockquote {
         margin: 1rem 0;
         padding-left: 1rem;
         border-left: 3px solid var(--border);
-        color: var(--muted);
+        color: var(--fg);
     }
 
     img {

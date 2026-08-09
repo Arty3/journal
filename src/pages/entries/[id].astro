@@ -37,6 +37,34 @@ const { Content } = await render(entry);
     </article>
 </Base>
 
+<script>
+    const blocks = document.querySelectorAll('pre > code.language-mermaid');
+
+    if (blocks.length > 0) {
+        const { default: mermaid } = await import('mermaid');
+
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'default',
+            fontFamily:
+                "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
+        });
+
+        for (const code of blocks) {
+            const pre = code.parentElement;
+            if (!pre) continue;
+            const container = document.createElement('pre');
+            container.className = 'mermaid';
+            container.textContent = code.textContent ?? '';
+            pre.replaceWith(container);
+        }
+
+        await mermaid.run({ querySelector: 'pre.mermaid' });
+    }
+</script>
+
 <style>
     article > header {
         margin-bottom: 2.5rem;
