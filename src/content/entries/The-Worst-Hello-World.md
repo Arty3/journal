@@ -765,11 +765,34 @@ In that case, allow me to introduce you to Brainfuck:
 >>>++++[<++++++++>-]<+.
 ```
 
+This is "Hello, World!" in Brainfuck.
+
 This is a programming language.
 
 An esoteric and deliberately ridiculous one, but a programming language nonetheless.
 
 And I think it's safe to say it beats my Hello World.
+
+But lets take this another step further:
+
+```malbolge
+b'BA@?>=<;:987654321r`oo,llH('&%
+ed"c~w|{z9'Z%utsrqponmlkjihgfedc
+ba`_^]\[ZYXWVUTSRQPONMLKJIHGFEDC
+BA@#>~;|z8xwvuts10/.nm+*)i'&%fd
+"ba`_^]yxwvXWsrqSonmPNjLKJIHGcb a
+`BA]|[=YXW:8T654321MLKJ,+GF'E'CBA
+$"~>}|{zy7654ts10/o-,+lj(hgfedc!
+~}|^]yxwvYutsVTpRQPONMihgfHGcbaC_
+^]@>Z<;:987SRQP21MLK-IHG*(D&%$#"
+!=<;:zy765u321r/.-,+*)iX&%$dS!~}
+|{zyxwvutsUDComlkjihgfedcFa`B1@
+/[ZYXWVUTSRQPONM0K-zHGFEDCBA@?>=
+<;{j87x543sb0/.-,+*)('&%$#"!b`0{
+zyxZIutsrqSBQ@lkjihglldcba`B1j
+```
+
+This is Malbolge, yes, like the circle of hell, and yes, this outputs "Hello World".
 
 Anyway, thank you for reading through!
 
