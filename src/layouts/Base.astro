@@ -107,13 +107,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 
     body {
         margin: 0 auto;
-        padding: 0 1.5rem;
+        padding: 0 2rem;
         /*
-         * The column widens with the viewport (up to ~140% of its 48rem
-         * base on large monitors) while the type stays at its normal size —
-         * a more spacious layout without a zoomed-in look.
+         * Wide but not edge-to-edge: the column tracks the viewport,
+         * leaving a modest gutter on large monitors (caps at 100rem).
          */
-        max-width: clamp(60rem, 39rem + 37.5vw, 84rem);
+        max-width: clamp(60rem, 30rem + 60vw, 100rem);
         background: var(--bg);
         color: var(--fg);
         font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;

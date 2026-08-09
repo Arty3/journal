@@ -29,4 +29,10 @@ const tags = tagCounts(entries);
     .list {
         margin-top: 2rem;
     }
+
+    /* the page ends with the entry list — pull the footer's divider up
+       to match the 1.5rem rhythm the list uses between its own items */
+    :global(footer) {
+        margin-top: 1.5rem;
+    }
 </style>
