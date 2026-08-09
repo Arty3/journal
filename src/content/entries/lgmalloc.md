@@ -8,6 +8,9 @@ tags:
 draft: false
 ---
 
+> [!TIP]
+> Already familiar with how allocators work? [Skip ahead to where the story continues](#reinventing-the-wheel).
+
 ## Memory in Computers
 
 One of the core reasons computers "work" is memory: they can remember what came before. Memory isn't necessarily an easy concept; it's often a source of bugs, vulnerabilities, and conceptual confusion. But at its core, the mechanism is, as with most elegant solutions, quite simple:

@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { remarkAlert } from 'remark-github-blockquote-alert';
 
 export default defineConfig({
     site: 'https://journal.lucagoddijn.com',
@@ -13,7 +14,7 @@ export default defineConfig({
             // source reaches the client for rendering.
             excludeLangs: ['mermaid'],
         },
-        remarkPlugins: [remarkMath],
+        remarkPlugins: [remarkMath, remarkAlert],
         rehypePlugins: [rehypeKatex],
     },
 });
