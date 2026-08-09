@@ -6,6 +6,9 @@ tags:
   - paper
   - memory allocation
 draft: false
+written: Aug 2026
+project: 2024
+status: Abandoned
 ---
 
 > [!TIP]

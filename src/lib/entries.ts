@@ -29,12 +29,67 @@ function lastUpdated(filePath: string | undefined): Date {
 
 export type Entry = CollectionEntry<'entries'> & { updated: Date };
 
-/** All published entries, most recently updated first. */
+const MONTHS = [
+    'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+    'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
+];
+
+/**
+ * Extracts a sortable month index from a loosely written date like
+ * "Aug 2026", "2023-2024", or "2025-present" — the first year found,
+ * refined by a month name when one directly precedes it. Returns null
+ * when no year is present.
+ */
+function approxDate(text: string | undefined): number | null {
+    if (!text) return null;
+    const match = text.match(/(?:([A-Za-z]{3,9})\.?\s+)?(\d{4})/);
+    if (!match) return null;
+    const month = MONTHS.findIndex((m) =>
+        match[1]?.toLowerCase().startsWith(m),
+    );
+    return Number(match[2]) * 12 + Math.max(month, 0);
+}
+
+/**
+ * All published entries, oldest project first. Entries without a
+ * project date fall back to their written date, then to the git
+ * timestamp; ties break newest-updated first.
+ */
 export async function sortedEntries(): Promise<Entry[]> {
     const entries = await getCollection('entries', ({ data }) => !data.draft);
+    const sortKey = (entry: Entry) =>
+        approxDate(entry.data.project) ??
+        approxDate(entry.data.written) ??
+        (entry.updated.getFullYear() * 12 + entry.updated.getMonth());
     return entries
         .map((entry) => ({ ...entry, updated: lastUpdated(entry.filePath) }))
-        .sort((a, b) => b.updated.getTime() - a.updated.getTime());
+        .sort(
+            (a, b) =>
+                sortKey(a) - sortKey(b) ||
+                b.updated.getTime() - a.updated.getTime(),
+        );
+}
+
+/**
+ * The most recently written entry, judged by the `written` date
+ * (git timestamp as fallback), ties broken by last update.
+ */
+export function latestWritten(entries: Entry[]): Entry | undefined {
+    const key = (entry: Entry) =>
+        approxDate(entry.data.written) ??
+        (entry.updated.getFullYear() * 12 + entry.updated.getMonth());
+    return [...entries].sort(
+        (a, b) => key(b) - key(a) || b.updated.getTime() - a.updated.getTime(),
+    )[0];
+}
+
+/**
+ * The status to display for an entry: only "Ongoing" is shown;
+ * any other status stays internal metadata.
+ */
+export function visibleStatus(entry: Entry): string | undefined {
+    const status = entry.data.status;
+    return status?.toLowerCase() === 'ongoing' ? status : undefined;
 }
 
 /** Every tag in use, with the number of entries carrying it. */

@@ -21,12 +21,18 @@ tags:
   - C++
 # If true, hides the draft from public view.
 draft: true
+# Optional metadata, shown on the entry page and in the list.
+written: Aug 2026        # when the entry was written
+project: 2023-2024       # when the project took place ("2025-present" works too)
+status: Abandoned        # e.g. Abandoned, Ongoing, Completed
 ---
 ```
 
-Entries carry no dates. The list at `/entries/` is sorted by the last git
-commit that touched each file, so revisiting an entry moves it back to the
-top. (The deploy workflow checks out full history for this; locally,
+The list at `/entries/` is sorted by project date, oldest first. The sort
+key is the first year found in `project` (a month name before the year
+refines it, e.g. "Aug 2023-2024"). Entries without a `project` fall back
+to their `written` date, and finally to the last git commit that touched
+the file. (The deploy workflow checks out full history for this; locally,
 uncommitted files fall back to filesystem mtime.)
 
 The landing page copy lives directly in `src/pages/index.astro`.

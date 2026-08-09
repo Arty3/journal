@@ -7,16 +7,14 @@ const entries = await sortedEntries();
 const tags = tagCounts(entries);
 ---
 
-<Base title="Entries — Luca's Journal" description="All journal entries, most recently updated first.">
+<Base title="Entries — Luca's Journal" description="All journal entries, sorted by when their projects took place.">
     <h1>Entries</h1>
     {
         tags.size > 0 && (
             <ul class="tags">
-                {[...tags.entries()].map(([tag, count]) => (
+                {[...tags.keys()].map((tag) => (
                     <li>
-                        <a href={`/tags/${tag}/`}>
-                            {tag} ({count})
-                        </a>
+                        <a href={`/tags/${tag}/`}>{tag}</a>
                     </li>
                 ))}
             </ul>

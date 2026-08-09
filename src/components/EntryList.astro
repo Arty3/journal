@@ -1,5 +1,5 @@
 ---
-import type { Entry } from '../lib/entries';
+import { visibleStatus, type Entry } from '../lib/entries';
 
 interface Props {
     entries: Entry[];
@@ -16,6 +16,18 @@ const { entries } = Astro.props;
                     <a href={`/entries/${entry.id}/`}>{entry.data.title}</a>
                 </h2>
                 <p>{entry.data.description}</p>
+                {(entry.data.project || entry.data.written || visibleStatus(entry)) && (
+                    <p class="meta">
+                        {[
+                            entry.data.project &&
+                                `Developed during ${entry.data.project}`,
+                            entry.data.written && `Written ${entry.data.written}`,
+                            visibleStatus(entry),
+                        ]
+                            .filter(Boolean)
+                            .join(' · ')}
+                    </p>
+                )}
                 {entry.data.tags.length > 0 && (
                     <ul class="tags">
                         {entry.data.tags.map((tag) => (
@@ -95,6 +107,11 @@ const { entries } = Astro.props;
         margin: 0.4rem 0 0;
         color: var(--muted);
         font-size: 1.05rem;
+    }
+
+    .entry-list .meta {
+        font-size: 0.85rem;
+        margin-top: 0.3rem;
     }
 
     /* tags sit above the stretched link so they stay clickable */

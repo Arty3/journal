@@ -1,6 +1,9 @@
 ---
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
+import { sortedEntries, latestWritten, visibleStatus } from '../lib/entries';
+
+const latest = latestWritten(await sortedEntries());
 
 /*
  * Photos for the "Outside this journal" section.
@@ -49,9 +52,33 @@ const hobbies = [
         I want to begin by logging here that this journal was started on the 8th of August 2026.
     </p>
 
-    <p class="cta">
-        <a href="/entries/">Browse the entries &rarr;</a>
-    </p>
+    {
+        latest ? (
+            <div class="recent">
+                <p class="recent-label">Most recent entry:</p>
+                <a class="recent-card" href={`/entries/${latest.id}/`}>
+                    <span class="recent-title">{latest.data.title} &rarr;</span>
+                    <span class="recent-desc">{latest.data.description}</span>
+                    {(latest.data.project || latest.data.written || visibleStatus(latest)) && (
+                        <span class="recent-meta">
+                            {[
+                                latest.data.project &&
+                                    `Developed during ${latest.data.project}`,
+                                latest.data.written && `Written ${latest.data.written}`,
+                                visibleStatus(latest),
+                            ]
+                                .filter(Boolean)
+                                .join(' · ')}
+                        </span>
+                    )}
+                </a>
+            </div>
+        ) : (
+            <p class="cta">
+                <a href="/entries/">Browse the entries &rarr;</a>
+            </p>
+        )
+    }
 
     <h2>What this is</h2>
 
@@ -333,6 +360,53 @@ const hobbies = [
         margin-top: 2rem;
         margin-bottom: 1rem;
         font-weight: 600;
+    }
+
+    .recent {
+        margin-top: 2.5rem;
+    }
+
+    .recent-label {
+        margin: 0 0 0.6rem;
+        font-weight: 600;
+        color: var(--fg);
+    }
+
+    .recent-card {
+        display: block;
+        padding: 1rem 1.25rem;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        text-decoration: none;
+        color: inherit;
+        transition:
+            transform 0.2s ease,
+            border-color 0.2s ease;
+    }
+
+    .recent-card:hover {
+        transform: scale(1.02);
+        border-color: var(--accent);
+    }
+
+    .recent-title {
+        display: block;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--accent);
+    }
+
+    .recent-desc {
+        display: block;
+        margin-top: 0.35rem;
+        color: var(--muted);
+    }
+
+    .recent-meta {
+        display: block;
+        margin-top: 0.5rem;
+        color: var(--muted);
+        font-size: 0.85rem;
     }
 
     .bottom-cta {

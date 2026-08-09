@@ -2,7 +2,7 @@
 import 'katex/dist/katex.min.css';
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { sortedEntries } from '../../lib/entries';
+import { sortedEntries, visibleStatus } from '../../lib/entries';
 
 export async function getStaticPaths() {
     const entries = await sortedEntries();
@@ -21,6 +21,17 @@ const { Content } = await render(entry);
         <header>
             <h1>{entry.data.title}</h1>
             <p class="description">{entry.data.description}</p>
+            {
+                (entry.data.written || entry.data.project || visibleStatus(entry)) && (
+                    <p class="meta">
+                        {entry.data.written && <span>Written: {entry.data.written}</span>}
+                        {entry.data.project && <span>Project: {entry.data.project}</span>}
+                        {visibleStatus(entry) && (
+                            <span class="status-ongoing">Status: {visibleStatus(entry)}</span>
+                        )}
+                    </p>
+                )
+            }
             {
                 entry.data.tags.length > 0 && (
                     <ul class="tags">
@@ -75,5 +86,20 @@ const { Content } = await render(entry);
     .description {
         color: var(--muted);
         margin: 0.5rem 0 0;
+    }
+
+    .meta {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin: 0.6rem 0 0;
+    }
+
+    .meta span + span::before {
+        content: '·';
+        margin: 0 0.5rem;
+    }
+
+    .meta .status-ongoing {
+        color: var(--green);
     }
 </style>
