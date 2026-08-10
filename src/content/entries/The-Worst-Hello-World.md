@@ -7,7 +7,7 @@ tags:
 draft: false
 written: Aug 2026
 project: 2024
-status: Completed
+status: Concluded
 ---
 
 # Hello, World!

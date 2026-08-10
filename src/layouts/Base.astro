@@ -235,6 +235,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         overflow-x: auto;
     }
 
+    iframe[src*='google.com/maps/embed'] {
+        display: block;
+        width: 100%;
+        height: min(70vh, 45rem);
+        margin: 1.5rem 0;
+        border-radius: 8px;
+    }
+
     .pdf-embed {
         display: block;
         width: 100%;

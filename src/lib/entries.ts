@@ -27,7 +27,35 @@ function lastUpdated(filePath: string | undefined): Date {
     }
 }
 
-export type Entry = CollectionEntry<'entries'> & { updated: Date };
+/**
+ * When an entry was first created, taken from the commit that added
+ * the file. Falls back to filesystem birth time (then mtime) for
+ * files not yet committed.
+ */
+function createdAt(filePath: string | undefined): Date {
+    if (!filePath) return new Date(0);
+    try {
+        const out = execFileSync(
+            'git',
+            ['log', '--diff-filter=A', '-1', '--format=%ct', '--', filePath],
+            { encoding: 'utf8' },
+        ).trim();
+        if (out) return new Date(Number(out) * 1000);
+    } catch {
+        // not a git checkout — fall through to filesystem times
+    }
+    try {
+        const stat = statSync(filePath);
+        return stat.birthtime.getTime() > 0 ? stat.birthtime : stat.mtime;
+    } catch {
+        return new Date(0);
+    }
+}
+
+export type Entry = CollectionEntry<'entries'> & {
+    created: Date;
+    updated: Date;
+};
 
 const MONTHS = [
     'jan', 'feb', 'mar', 'apr', 'may', 'jun',
@@ -51,21 +79,20 @@ function approxDate(text: string | undefined): number | null {
 }
 
 /**
- * All published entries, oldest project first. Entries without a
- * project date fall back to their written date, then to the git
- * timestamp; ties break newest-updated first.
+ * All published entries, most recently created first. Ties break
+ * newest-updated first.
  */
 export async function sortedEntries(): Promise<Entry[]> {
     const entries = await getCollection('entries', ({ data }) => !data.draft);
-    const sortKey = (entry: Entry) =>
-        approxDate(entry.data.project) ??
-        approxDate(entry.data.written) ??
-        (entry.updated.getFullYear() * 12 + entry.updated.getMonth());
     return entries
-        .map((entry) => ({ ...entry, updated: lastUpdated(entry.filePath) }))
+        .map((entry) => ({
+            ...entry,
+            created: createdAt(entry.filePath),
+            updated: lastUpdated(entry.filePath),
+        }))
         .sort(
             (a, b) =>
-                sortKey(a) - sortKey(b) ||
+                b.created.getTime() - a.created.getTime() ||
                 b.updated.getTime() - a.updated.getTime(),
         );
 }

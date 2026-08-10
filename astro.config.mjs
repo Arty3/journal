@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
+import { unified } from '@astrojs/markdown-remark';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { remarkAlert } from 'remark-github-blockquote-alert';
@@ -14,7 +15,22 @@ export default defineConfig({
             // source reaches the client for rendering.
             excludeLangs: ['mermaid'],
         },
-        remarkPlugins: [remarkMath, remarkAlert],
-        rehypePlugins: [rehypeKatex],
+        processor: unified({
+            remarkPlugins: [remarkMath, remarkAlert],
+            rehypePlugins: [
+                [
+                    rehypeKatex,
+                    {
+                        // Macros from the entries' LaTeX papers, so notation
+                        // renders on the site the same way it does in the PDFs.
+                        macros: {
+                            '\\A': '\\mathcal{A}',
+                            '\\E': '\\mathcal{E}',
+                            '\\CaptureStr': '\\mathrm{Capture}_{\\mathrm{str}}',
+                        },
+                    },
+                ],
+            ],
+        }),
     },
 });
