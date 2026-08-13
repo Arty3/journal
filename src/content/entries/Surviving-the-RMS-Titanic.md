@@ -43,7 +43,7 @@ What changed was that I increasingly became interested in the layers underneath 
 
 There is, however, a second reason to why I want to record this entry. This was one of the earliest times I formally worked through a problem like this — perhaps even the earliest.
 
-I worked through the problem on paper, wrote out the mathematics, cleaned up the reasoning, and only then translated it into a direct implementation. That process has since become a habit in much of my work, and one I now consider important.
+I worked through the problem on paper, wrote out the mathematics, cleaned up the reasoning, and only then translated it into a direct implementation. That process has since become a habit in much of my work, and one I now consider important. And you know, I was quite literally the worst student in my math classes growing up. And while I'm no mathematician now — I still need to pull out a calculator more often than I should — I've slowly been developing my skills further, which is something I pride myself with very much.
 
 Unfortunately, after looking through my old documents, the original paper where I worked through the problem seems to be lost. It would have been nice to include a photo of it here, both as part of the process and as a small record of how I approached the work at the time, with all of my scribbles and terrible diagonal writing.
 
