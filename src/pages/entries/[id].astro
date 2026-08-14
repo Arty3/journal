@@ -2,7 +2,7 @@
 import 'katex/dist/katex.min.css';
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { sortedEntries, visibleStatus } from '../../lib/entries';
+import { readingTime, sortedEntries, visibleStatus } from '../../lib/entries';
 
 export async function getStaticPaths() {
     const entries = await sortedEntries();
@@ -16,7 +16,10 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 ---
 
-<Base title={`${entry.data.title} — Luca's Journal`} description={entry.data.description}>
+<Base
+    title={`${entry.data.title} — ${readingTime(entry)} min — Luca's Journal`}
+    description={entry.data.description}
+>
     <article>
         <header>
             <h1>{entry.data.title}</h1>
@@ -43,6 +46,20 @@ const { Content } = await render(entry);
                     </ul>
                 )
             }
+            <span class="reading-time">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    aria-hidden="true"
+                >
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 7v5l3 2" />
+                </svg>
+                {readingTime(entry)} min
+            </span>
             <p class="back">
                 <a href="/entries/">&larr; All entries</a>
             </p>
@@ -104,6 +121,10 @@ const { Content } = await render(entry);
 
     .meta .status-ongoing {
         color: var(--green);
+    }
+
+    .reading-time {
+        margin-top: 0.75rem;
     }
 
     .back {

@@ -366,6 +366,24 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         color: var(--accent);
     }
 
+    /* plain muted text, no pill chrome */
+    .reading-time {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-top: 0.5rem;
+        color: var(--muted);
+        font-size: 0.85rem;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: color 0.15s ease;
+    }
+
+    .reading-time svg {
+        width: 0.95em;
+        height: 0.95em;
+    }
+
     footer {
         margin-top: 4rem;
         padding: 1.5rem 0;

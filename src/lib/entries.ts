@@ -129,6 +129,30 @@ export function visibleStatus(entry: Entry): string | undefined {
     return status?.toLowerCase() === 'ongoing' ? status : undefined;
 }
 
+/**
+ * Estimated reading time in whole minutes, computed from the entry's
+ * markdown body at ~150 words per minute (dense, technical prose).
+ * Code blocks, links, and markup are reduced to their readable text
+ * before counting.
+ */
+export function readingTime(entry: Entry): number {
+    const text = (entry.body ?? '')
+        // fenced code blocks read as skimmed, not word-for-word
+        .replace(/```[\s\S]*?```/g, ' ')
+        .replace(/`[^`\n]*`/g, ' ')
+        // keep link and image alt text, drop the URLs
+        .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
+        .replace(/<[^>]+>/g, ' ');
+    const words = text.split(/\s+/).filter(Boolean).length;
+    const minutes = Math.max(1, Math.round(words / 150));
+    // minutes ending in 1 or 9 read as false precision; snap to the ten
+    const rem = minutes % 10;
+    if (rem === 1 || rem === 9) {
+        return Math.max(1, Math.round(minutes / 10) * 10);
+    }
+    return minutes;
+}
+
 /** Every tag in use, with the number of entries carrying it. */
 export function tagCounts(entries: Entry[]): Map<string, number> {
     const counts = new Map<string, number>();
