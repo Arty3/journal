@@ -2,8 +2,8 @@
 title: The Worst Hello World
 description: Like, literally the worst hello world
 tags:
-  - C
-  - experiments
+  - c
+  - fun
 draft: false
 written: Aug 2026
 project: 2024

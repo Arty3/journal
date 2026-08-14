@@ -2,9 +2,10 @@
 title: Surviving the RMS Titanic
 description: Who needs PyTorch anyways?
 tags:
-  - Machine Learning
-  - Data Science
-  - Math
+  - machine learning
+  - data science
+  - python
+  - math
 draft: false
 written: Aug 2026
 project: 2024

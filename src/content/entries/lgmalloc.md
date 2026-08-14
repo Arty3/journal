@@ -2,7 +2,7 @@
 title: lgmalloc
 description: The M in malloc stands for mid
 tags:
-  - C
+  - c
   - paper
   - memory allocation
 draft: false
