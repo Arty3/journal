@@ -16,7 +16,7 @@ const projectYears = yearsOf(entries.map(projectSortKey));
 
 <form class="entry-controls">
     <label>
-        Sort by
+        Sort by:
         <select name="sort">
             <option value="project">Project date</option>
             <option value="written">Time of writing</option>
@@ -33,7 +33,7 @@ const projectYears = yearsOf(entries.map(projectSortKey));
     </button>
     <span class="separator" aria-hidden="true">|</span>
     <label>
-        Length
+        Length:
         <select name="reading">
             <option value="">Any</option>
             <option value="0-10">&le; 10 min</option>
@@ -42,14 +42,14 @@ const projectYears = yearsOf(entries.map(projectSortKey));
         </select>
     </label>
     <label>
-        Written
+        Written:
         <select name="written">
             <option value="">Any year</option>
             {writtenYears.map((year) => <option value={year}>{year}</option>)}
         </select>
     </label>
     <label>
-        Project
+        Project:
         <select name="project">
             <option value="">Any year</option>
             {projectYears.map((year) => <option value={year}>{year}</option>)}
@@ -149,10 +149,12 @@ const projectYears = yearsOf(entries.map(projectSortKey));
         align-items: center;
         gap: 0.45rem;
         white-space: nowrap;
+        font-size: 1rem;
     }
 
     .entry-controls select {
         font: inherit;
+        font-size: 0.9rem;
         color: var(--fg);
         background: var(--tag-bg);
         border: 1px solid var(--border);
