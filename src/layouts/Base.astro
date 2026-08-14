@@ -366,12 +366,24 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 
     .tags a {
         display: inline-block;
-        background: var(--tag-bg);
-        color: var(--muted);
+        /*
+         * --tag-hue is computed at build time from tag-word semantics
+         * (src/lib/tagColors.ts): related tags get neighboring hues.
+         * The saturation is kept low so the pills stay understated.
+         */
+        background: hsl(var(--tag-hue, 220) 30% 91%);
+        color: hsl(var(--tag-hue, 220) 30% 34%);
         border-radius: 999px;
         padding: 0.1rem 0.65rem;
         font-size: 0.8rem;
         text-decoration: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .tags a {
+            background: hsl(var(--tag-hue, 220) 22% 21%);
+            color: hsl(var(--tag-hue, 220) 35% 74%);
+        }
     }
 
     .tags a:hover,

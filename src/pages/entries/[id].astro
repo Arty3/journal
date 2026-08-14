@@ -3,6 +3,7 @@ import 'katex/dist/katex.min.css';
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { readingTime, sortedEntries, visibleStatus } from '../../lib/entries';
+import { allTagHues } from '../../lib/tagColors';
 
 export async function getStaticPaths() {
     const entries = await sortedEntries();
@@ -14,6 +15,7 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+const tagHues = await allTagHues();
 ---
 
 <Base
@@ -40,7 +42,12 @@ const { Content } = await render(entry);
                     <ul class="tags">
                         {entry.data.tags.map((tag) => (
                             <li>
-                                <a href={`/tags/${tag}/`}>{tag}</a>
+                                <a
+                                    href={`/tags/${tag}/`}
+                                    style={`--tag-hue: ${tagHues.get(tag)}`}
+                                >
+                                    {tag}
+                                </a>
                             </li>
                         ))}
                     </ul>

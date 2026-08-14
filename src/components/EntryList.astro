@@ -6,12 +6,14 @@ import {
     writtenSortKey,
     type Entry,
 } from '../lib/entries';
+import { allTagHues } from '../lib/tagColors';
 
 interface Props {
     entries: Entry[];
 }
 
 const { entries } = Astro.props;
+const tagHues = await allTagHues();
 ---
 
 <ul class="entry-list">
@@ -44,7 +46,12 @@ const { entries } = Astro.props;
                     <ul class="tags">
                         {entry.data.tags.map((tag) => (
                             <li>
-                                <a href={`/tags/${tag}/`}>{tag}</a>
+                                <a
+                                    href={`/tags/${tag}/`}
+                                    style={`--tag-hue: ${tagHues.get(tag)}`}
+                                >
+                                    {tag}
+                                </a>
                             </li>
                         ))}
                     </ul>

@@ -3,9 +3,15 @@ import Base from '../../layouts/Base.astro';
 import EntryControls from '../../components/EntryControls.astro';
 import EntryList from '../../components/EntryList.astro';
 import { sortedEntries, tagCounts } from '../../lib/entries';
+import { allTagHues } from '../../lib/tagColors';
 
 const entries = await sortedEntries();
 const tags = tagCounts(entries);
+const tagHues = await allTagHues();
+/* red first, then around the wheel — ring neighbors stay adjacent */
+const sortedTags = [...tags.keys()].sort(
+    (a, b) => (tagHues.get(a) ?? 0) - (tagHues.get(b) ?? 0),
+);
 ---
 
 <Base title="Entries — Luca's Journal" description="All journal entries, newest first.">
@@ -14,9 +20,11 @@ const tags = tagCounts(entries);
     {
         tags.size > 0 && (
             <ul class="tags tag-cloud">
-                {[...tags.keys()].map((tag) => (
+                {sortedTags.map((tag) => (
                     <li>
-                        <a href={`/tags/${tag}/`}>{tag}</a>
+                        <a href={`/tags/${tag}/`} style={`--tag-hue: ${tagHues.get(tag)}`}>
+                            {tag}
+                        </a>
                     </li>
                 ))}
             </ul>
