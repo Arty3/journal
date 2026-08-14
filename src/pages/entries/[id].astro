@@ -80,6 +80,9 @@ const orderedTags = [...entry.data.tags].sort(
         </header>
         <Content />
     </article>
+    <dialog class="lightbox" aria-label="Full screen image">
+        <img src="" alt="" />
+    </dialog>
 </Base>
 
 <script>
@@ -107,6 +110,28 @@ const orderedTags = [...entry.data.tags].sort(
         }
 
         await mermaid.run({ querySelector: 'pre.mermaid' });
+    }
+</script>
+
+<script>
+    /* same grow-and-lightbox behavior as the home page photos */
+    const lightbox = document.querySelector<HTMLDialogElement>('.lightbox');
+    const lightboxImg = lightbox?.querySelector('img');
+
+    if (lightbox && lightboxImg) {
+        for (const img of document.querySelectorAll<HTMLImageElement>('article img')) {
+            /* linked images keep their link behavior */
+            if (img.closest('a')) continue;
+            img.classList.add('zoomable');
+            img.addEventListener('click', () => {
+                lightboxImg.src = img.src;
+                lightboxImg.alt = img.alt;
+                lightbox.showModal();
+            });
+        }
+
+        /* click anywhere (image or backdrop) closes; Esc works natively */
+        lightbox.addEventListener('click', () => lightbox.close());
     }
 </script>
 
@@ -158,5 +183,39 @@ const orderedTags = [...entry.data.tags].sort(
 
     .back a:hover::after {
         transform: scaleX(1);
+    }
+
+    /* markdown content isn't scoped, hence the :global() */
+    article :global(img.zoomable) {
+        cursor: zoom-in;
+        transition: transform 0.25s ease;
+    }
+
+    article :global(img.zoomable:hover) {
+        transform: scale(1.03);
+    }
+
+    .lightbox {
+        padding: 0;
+        border: none;
+        background: transparent;
+        max-width: 92vw;
+        max-height: 92vh;
+        cursor: zoom-out;
+        /* the dialog receives focus on open; its ring frames the screen */
+        outline: none;
+    }
+
+    .lightbox::backdrop {
+        background: rgba(0, 0, 0, 0.85);
+    }
+
+    .lightbox img {
+        display: block;
+        /* fixed viewport-sized box: contain scales any aspect ratio
+           up or down to fill it, so wide images open large too */
+        width: 92vw;
+        height: 92vh;
+        object-fit: contain;
     }
 </style>
