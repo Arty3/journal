@@ -13,7 +13,7 @@ const { entries } = Astro.props;
         entries.map((entry) => (
             <li>
                 <h2>
-                    <a href={`/entries/${entry.id}/`}>{entry.data.title}</a>
+                    <a href={`/entries/${entry.id}/`}>{entry.data.title} &rarr;</a>
                 </h2>
                 <p>{entry.data.description}</p>
                 {(entry.data.project || entry.data.written || visibleStatus(entry)) && (
@@ -90,7 +90,7 @@ const { entries } = Astro.props;
     }
 
     .entry-list h2 a {
-        color: var(--fg);
+        color: var(--accent);
         text-decoration: none;
         /*
          * Underline drawn as a background gradient rather than a
@@ -103,9 +103,7 @@ const { entries } = Astro.props;
         background-repeat: no-repeat;
         background-position: 0 100%;
         background-size: 0 2px;
-        transition:
-            color 0.15s ease,
-            background-size 0.2s ease;
+        transition: background-size 0.2s ease;
     }
 
     /*
@@ -119,7 +117,6 @@ const { entries } = Astro.props;
     }
 
     .entry-list > li:hover h2 a {
-        color: var(--accent);
         background-size: 100% 2px;
     }
 
