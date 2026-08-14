@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import EntryControls from '../../components/EntryControls.astro';
 import EntryList from '../../components/EntryList.astro';
 import { sortedEntries, tagCounts } from '../../lib/entries';
 
@@ -9,9 +10,10 @@ const tags = tagCounts(entries);
 
 <Base title="Entries — Luca's Journal" description="All journal entries, newest first.">
     <h1>Entries</h1>
+    {entries.length > 0 && <EntryControls entries={entries} />}
     {
         tags.size > 0 && (
-            <ul class="tags">
+            <ul class="tags tag-cloud">
                 {[...tags.keys()].map((tag) => (
                     <li>
                         <a href={`/tags/${tag}/`}>{tag}</a>
@@ -20,6 +22,7 @@ const tags = tagCounts(entries);
             </ul>
         )
     }
+    {entries.length > 0 && <p class="no-matches" hidden>No entries match these filters.</p>}
     <div class="list">
         {entries.length > 0 ? <EntryList entries={entries} /> : <p>Nothing here yet.</p>}
     </div>
@@ -28,6 +31,11 @@ const tags = tagCounts(entries);
 <style>
     .list {
         margin-top: 2rem;
+    }
+
+    .no-matches {
+        margin: 2rem 0 0;
+        color: var(--muted);
     }
 
     /* the page ends with the entry list — pull the footer's divider up

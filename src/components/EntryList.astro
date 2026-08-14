@@ -1,5 +1,11 @@
 ---
-import { readingTime, visibleStatus, type Entry } from '../lib/entries';
+import {
+    projectSortKey,
+    readingTime,
+    visibleStatus,
+    writtenSortKey,
+    type Entry,
+} from '../lib/entries';
 
 interface Props {
     entries: Entry[];
@@ -10,8 +16,14 @@ const { entries } = Astro.props;
 
 <ul class="entry-list">
     {
-        entries.map((entry) => (
-            <li>
+        entries.map((entry, index) => (
+            <li
+                data-order={index}
+                data-project={projectSortKey(entry)}
+                data-written={writtenSortKey(entry)}
+                data-reading={readingTime(entry)}
+                data-tags={entry.data.tags.join('|')}
+            >
                 <h2>
                     <a href={`/entries/${entry.id}/`}>{entry.data.title} &rarr;</a>
                 </h2>
@@ -79,7 +91,8 @@ const { entries } = Astro.props;
     }
 
     /* the footer's top border already closes off the list */
-    .entry-list > li:last-child {
+    .entry-list > li:last-child,
+    .entry-list > li.last-visible {
         border-bottom: none;
         padding-bottom: 0;
     }

@@ -78,21 +78,35 @@ function approxDate(text: string | undefined): number | null {
     return Number(match[2]) * 12 + Math.max(month, 0);
 }
 
+const monthOf = (date: Date) => date.getFullYear() * 12 + date.getMonth();
+
 /**
- * All published entries, latest project first. The project date comes
- * from the `project` frontmatter, falling back to the `written` date and
- * then the git creation month when absent. Ties break by when the entry
- * was written: latest `written` date first, then git creation time.
+ * Month index (year * 12 + month) an entry's project sorts under: the
+ * `project` frontmatter, falling back to the `written` date and then
+ * the git creation month.
+ */
+export function projectSortKey(entry: Entry): number {
+    return (
+        approxDate(entry.data.project) ??
+        approxDate(entry.data.written) ??
+        monthOf(entry.created)
+    );
+}
+
+/**
+ * Month index an entry's writing sorts under: the `written` frontmatter,
+ * falling back to the git creation month.
+ */
+export function writtenSortKey(entry: Entry): number {
+    return approxDate(entry.data.written) ?? monthOf(entry.created);
+}
+
+/**
+ * All published entries, latest project first. Ties break by when the
+ * entry was written: latest `written` date first, then git creation time.
  */
 export async function sortedEntries(): Promise<Entry[]> {
     const entries = await getCollection('entries', ({ data }) => !data.draft);
-    const monthOf = (date: Date) => date.getFullYear() * 12 + date.getMonth();
-    const projectKey = (entry: Entry) =>
-        approxDate(entry.data.project) ??
-        approxDate(entry.data.written) ??
-        monthOf(entry.created);
-    const writtenKey = (entry: Entry) =>
-        approxDate(entry.data.written) ?? monthOf(entry.created);
     return entries
         .map((entry) => ({
             ...entry,
@@ -101,8 +115,8 @@ export async function sortedEntries(): Promise<Entry[]> {
         }))
         .sort(
             (a, b) =>
-                projectKey(b) - projectKey(a) ||
-                writtenKey(b) - writtenKey(a) ||
+                projectSortKey(b) - projectSortKey(a) ||
+                writtenSortKey(b) - writtenSortKey(a) ||
                 b.created.getTime() - a.created.getTime(),
         );
 }

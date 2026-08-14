@@ -109,6 +109,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         /* the layout is responsive; don't let mobile browsers inflate text */
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
+        /*
+         * Reserve the scrollbar gutter: filtering the entry list can
+         * make the page short enough to lose the scrollbar, which
+         * would otherwise shift the whole layout sideways.
+         */
+        scrollbar-gutter: stable;
     }
 
     body {
@@ -371,6 +377,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     .tags a:hover,
     .tags a[aria-current='page'] {
         color: var(--accent);
+    }
+
+    /* tags toggled on as filters in the entries page tag cloud */
+    .tags a.active {
+        color: var(--accent);
+        box-shadow: inset 0 0 0 1px var(--accent);
     }
 
     /* plain muted text, no pill chrome */

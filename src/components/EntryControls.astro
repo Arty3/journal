@@ -1,0 +1,263 @@
+---
+import { projectSortKey, writtenSortKey, type Entry } from '../lib/entries';
+
+interface Props {
+    entries: Entry[];
+}
+
+const { entries } = Astro.props;
+
+const yearsOf = (keys: number[]) =>
+    [...new Set(keys.map((key) => Math.floor(key / 12)))].sort((a, b) => b - a);
+
+const writtenYears = yearsOf(entries.map(writtenSortKey));
+const projectYears = yearsOf(entries.map(projectSortKey));
+---
+
+<form class="entry-controls">
+    <label>
+        Sort by
+        <select name="sort">
+            <option value="project">Project date</option>
+            <option value="written">Time of writing</option>
+            <option value="reading">Reading time</option>
+        </select>
+    </label>
+    <button
+        type="button"
+        name="order"
+        title="Flip sort direction"
+        aria-label="Flip sort direction"
+    >
+        <span class="tri" aria-hidden="true"></span>
+    </button>
+    <span class="separator" aria-hidden="true">|</span>
+    <label>
+        Length
+        <select name="reading">
+            <option value="">Any</option>
+            <option value="0-10">&le; 10 min</option>
+            <option value="10-20">10&ndash;20 min</option>
+            <option value="21-9999">&gt; 20 min</option>
+        </select>
+    </label>
+    <label>
+        Written
+        <select name="written">
+            <option value="">Any year</option>
+            {writtenYears.map((year) => <option value={year}>{year}</option>)}
+        </select>
+    </label>
+    <label>
+        Project
+        <select name="project">
+            <option value="">Any year</option>
+            {projectYears.map((year) => <option value={year}>{year}</option>)}
+        </select>
+    </label>
+</form>
+
+<script>
+    const controls = document.querySelector<HTMLFormElement>('.entry-controls');
+    const list = document.querySelector<HTMLUListElement>('.entry-list');
+    const noMatches = document.querySelector<HTMLParagraphElement>('.no-matches');
+
+    const sortSelect = controls?.querySelector<HTMLSelectElement>('select[name="sort"]');
+    const orderButton = controls?.querySelector<HTMLButtonElement>('button[name="order"]');
+    const readingSelect = controls?.querySelector<HTMLSelectElement>('select[name="reading"]');
+    const writtenSelect = controls?.querySelector<HTMLSelectElement>('select[name="written"]');
+    const projectSelect = controls?.querySelector<HTMLSelectElement>('select[name="project"]');
+
+    if (controls && list && sortSelect && orderButton && readingSelect && writtenSelect && projectSelect) {
+        let descending = true;
+
+        const value = (item: HTMLElement, key: string) => Number(item.dataset[key] ?? 0);
+        const yearOf = (item: HTMLElement, key: string) => Math.floor(value(item, key) / 12);
+
+        const apply = () => {
+            const items = [...list.querySelectorAll<HTMLLIElement>(':scope > li')];
+            const key = sortSelect.value;
+            const direction = descending ? -1 : 1;
+            items.sort(
+                (a, b) =>
+                    direction * (value(a, key) - value(b, key)) ||
+                    value(a, 'order') - value(b, 'order'),
+            );
+
+            const [min, max] = readingSelect.value
+                ? readingSelect.value.split('-').map(Number)
+                : [0, Infinity];
+            const writtenYear = writtenSelect.value ? Number(writtenSelect.value) : null;
+            const projectYear = projectSelect.value ? Number(projectSelect.value) : null;
+            const activeTags = [
+                ...document.querySelectorAll<HTMLAnchorElement>('.tag-cloud a.active'),
+            ].map((link) => link.textContent?.trim() ?? '');
+
+            let lastVisible: HTMLLIElement | null = null;
+            for (const item of items) {
+                list.append(item);
+                const reading = value(item, 'reading');
+                const itemTags = (item.dataset.tags ?? '').split('|');
+                const visible =
+                    reading >= min &&
+                    reading <= max &&
+                    (writtenYear === null || yearOf(item, 'written') === writtenYear) &&
+                    (projectYear === null || yearOf(item, 'project') === projectYear) &&
+                    activeTags.every((tag) => itemTags.includes(tag));
+                item.hidden = !visible;
+                item.classList.remove('last-visible');
+                if (visible) lastVisible = item;
+            }
+            lastVisible?.classList.add('last-visible');
+            if (noMatches) noMatches.hidden = lastVisible !== null;
+        };
+
+        controls.addEventListener('change', apply);
+        orderButton.addEventListener('click', () => {
+            descending = !descending;
+            orderButton.classList.toggle('ascending', !descending);
+            apply();
+        });
+
+        /*
+         * The tag cloud filters in place; the links still lead to the
+         * tag pages for new-tab clicks and clients without JS.
+         */
+        for (const link of document.querySelectorAll<HTMLAnchorElement>('.tag-cloud a')) {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                link.classList.toggle('active');
+                apply();
+            });
+        }
+    }
+</script>
+
+<style>
+    .entry-controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.6rem 1.25rem;
+        margin-top: 1.5rem;
+        font-size: 0.9rem;
+        color: var(--muted);
+    }
+
+    .entry-controls label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        white-space: nowrap;
+    }
+
+    .entry-controls select {
+        font: inherit;
+        color: var(--fg);
+        background: var(--tag-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.25rem 0.5rem;
+        cursor: pointer;
+        transition: border-color 0.15s ease;
+    }
+
+    .entry-controls select:hover {
+        border-color: var(--accent);
+    }
+
+    /*
+     * Customizable select (Chromium 135+): opt in so the dropdown
+     * itself can be styled — rounded, borderless, themed. Browsers
+     * without support ignore this and keep their native picker.
+     */
+    .entry-controls select,
+    .entry-controls select::picker(select) {
+        appearance: base-select;
+    }
+
+    .entry-controls select::picker(select) {
+        border: none;
+        border-radius: 8px;
+        padding: 0.3rem;
+        background: var(--tag-bg);
+        color: var(--fg);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /*
+     * Chevron in place of the default dropdown triangle. The glyph is
+     * two borders of a rotated square, whose point hangs below the box
+     * center — the translate before the rotation recenters it.
+     */
+    .entry-controls select::picker-icon {
+        content: '';
+        align-self: center;
+        width: 0.35em;
+        height: 0.35em;
+        margin-left: 0.5rem;
+        border-right: 1.5px solid currentColor;
+        border-bottom: 1.5px solid currentColor;
+        transform: translateY(-15%) rotate(45deg);
+        transition: transform 0.15s ease;
+    }
+
+    .entry-controls select:open::picker-icon {
+        transform: translateY(20%) rotate(225deg);
+    }
+
+    .entry-controls option {
+        padding: 0.3rem 0.6rem;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .entry-controls option:hover,
+    .entry-controls option:focus-visible {
+        background: var(--border);
+    }
+
+    /* triangle in a light outline: clickable, but not a field */
+    .entry-controls button {
+        /* stretch to the row height so the outline matches the selects */
+        align-self: stretch;
+        display: inline-flex;
+        align-items: center;
+        font: inherit;
+        font-size: 0.75rem;
+        color: var(--muted);
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0 0.4rem;
+        margin-left: -0.5rem;
+        cursor: pointer;
+        transition:
+            color 0.15s ease,
+            border-color 0.15s ease;
+    }
+
+    .entry-controls button:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+    }
+
+    /* filled counterpart of the selects' chevron */
+    .entry-controls .tri {
+        display: block;
+        width: 0.75em;
+        height: 0.5em;
+        background: currentColor;
+        clip-path: polygon(0 0, 100% 0, 50% 100%);
+        transition: transform 0.15s ease;
+    }
+
+    .entry-controls button.ascending .tri {
+        transform: rotate(180deg);
+    }
+
+    .separator {
+        color: var(--border);
+        user-select: none;
+    }
+</style>
