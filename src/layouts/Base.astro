@@ -105,14 +105,21 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         box-sizing: border-box;
     }
 
+    html {
+        /* the layout is responsive; don't let mobile browsers inflate text */
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
     body {
         margin: 0 auto;
         padding: 0 2rem;
         /*
          * Wide but not edge-to-edge: the column tracks the viewport,
          * leaving a modest gutter on large monitors (caps at 100rem).
+         * Never wider than the viewport itself on small screens.
          */
-        max-width: clamp(60rem, 30rem + 60vw, 100rem);
+        max-width: min(100%, clamp(60rem, 30rem + 60vw, 100rem));
         background: var(--bg);
         color: var(--fg);
         font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -394,5 +401,50 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 
     footer a {
         color: inherit;
+    }
+
+    /* wide display math scrolls within its own box, not the page */
+    .katex-display {
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+    @media (max-width: 640px) {
+        body {
+            padding: 0 1.25rem;
+            font-size: 1.05rem;
+        }
+
+        header nav {
+            gap: 1.25rem;
+            padding-top: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .site-title,
+        .nav-link {
+            font-size: 1.25rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+        }
+
+        table {
+            display: block;
+            overflow-x: auto;
+        }
+
+        /*
+         * Entries size images with percentage width attributes meant
+         * for the wide desktop column; on phones let them fill it.
+         */
+        main img[width] {
+            width: 100%;
+        }
     }
 </style>
