@@ -14,6 +14,9 @@ interface Props {
 
 const { entries } = Astro.props;
 const tagHues = await allTagHues();
+/* same spectrum order as the tag cloud */
+const hueOrder = (tags: string[]) =>
+    [...tags].sort((a, b) => (tagHues.get(a) ?? 0) - (tagHues.get(b) ?? 0));
 ---
 
 <ul class="entry-list">
@@ -44,7 +47,7 @@ const tagHues = await allTagHues();
                 )}
                 {entry.data.tags.length > 0 && (
                     <ul class="tags">
-                        {entry.data.tags.map((tag) => (
+                        {hueOrder(entry.data.tags).map((tag) => (
                             <li>
                                 <a
                                     href={`/tags/${tag}/`}

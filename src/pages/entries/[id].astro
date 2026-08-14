@@ -16,6 +16,10 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const tagHues = await allTagHues();
+/* same spectrum order as the tag cloud */
+const orderedTags = [...entry.data.tags].sort(
+    (a, b) => (tagHues.get(a) ?? 0) - (tagHues.get(b) ?? 0),
+);
 ---
 
 <Base
@@ -27,20 +31,23 @@ const tagHues = await allTagHues();
             <h1>{entry.data.title}</h1>
             <p class="description">{entry.data.description}</p>
             {
-                (entry.data.written || entry.data.project || visibleStatus(entry)) && (
+                (entry.data.project || entry.data.written || visibleStatus(entry)) && (
                     <p class="meta">
-                        {entry.data.written && <span>Written: {entry.data.written}</span>}
-                        {entry.data.project && <span>Project: {entry.data.project}</span>}
-                        {visibleStatus(entry) && (
-                            <span class="status-ongoing">Status: {visibleStatus(entry)}</span>
-                        )}
+                        {[
+                            entry.data.project &&
+                                `Developed during ${entry.data.project}`,
+                            entry.data.written && `Written ${entry.data.written}`,
+                            visibleStatus(entry),
+                        ]
+                            .filter(Boolean)
+                            .join(' · ')}
                     </p>
                 )
             }
             {
                 entry.data.tags.length > 0 && (
                     <ul class="tags">
-                        {entry.data.tags.map((tag) => (
+                        {orderedTags.map((tag) => (
                             <li>
                                 <a
                                     href={`/tags/${tag}/`}
@@ -119,15 +126,6 @@ const tagHues = await allTagHues();
         color: var(--muted);
         font-size: 0.9rem;
         margin: 0.6rem 0 0;
-    }
-
-    .meta span + span::before {
-        content: '·';
-        margin: 0 0.5rem;
-    }
-
-    .meta .status-ongoing {
-        color: var(--green);
     }
 
     .reading-time {
