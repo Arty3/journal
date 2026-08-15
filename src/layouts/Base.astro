@@ -27,6 +27,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
             title="Luca's Journal"
             href={new URL('rss.xml', Astro.site)}
         />
+        <link
+            rel="alternate"
+            type="application/atom+xml"
+            title="Luca's Journal (Atom)"
+            href={new URL('atom.xml', Astro.site)}
+        />
     </head>
     <body>
         <header>
