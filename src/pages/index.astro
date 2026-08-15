@@ -150,6 +150,7 @@ const hobbies = [
             If you'd still rather get updates by email, you can easily do this with <a href="https://blogtrottr.com/">Blogtrottr</a> or <a href="https://feedrabbit.com/">Feedrabbit</a>, which will email you new entries directly.
         </p>
         <div class="feed-url">
+            <span class="feed-url-label">Feed URL:</span>
             <code>{feedUrl}</code>
             <button
                 type="button"
@@ -473,6 +474,12 @@ const hobbies = [
         gap: 0.5rem;
         margin-top: 0.75rem;
         max-width: 100%;
+    }
+
+    .feed-url-label {
+        flex-shrink: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
     }
 
     .feed-url code {
