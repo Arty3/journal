@@ -37,6 +37,17 @@ const sortedTags = [...tags.keys()].sort(
 </Base>
 
 <style>
+    /* match the gap the sort/filter controls use between their rows */
+    .tag-cloud {
+        margin-top: 0.6rem;
+    }
+
+    @media (max-width: 640px) {
+        .tag-cloud {
+            margin-top: 0.85rem;
+        }
+    }
+
     .list {
         margin-top: 2rem;
     }

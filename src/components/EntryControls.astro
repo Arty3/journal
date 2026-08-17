@@ -15,22 +15,24 @@ const projectYears = yearsOf(entries.map(projectSortKey));
 ---
 
 <form class="entry-controls">
-    <label>
-        Sort by:
-        <select name="sort">
-            <option value="project">Project date</option>
-            <option value="written">Time of writing</option>
-            <option value="reading">Reading time</option>
-        </select>
-    </label>
-    <button
-        type="button"
-        name="order"
-        title="Flip sort direction"
-        aria-label="Flip sort direction"
-    >
-        <span class="tri" aria-hidden="true"></span>
-    </button>
+    <div class="sort-group">
+        <label>
+            Sort by:
+            <select name="sort">
+                <option value="project">Project date</option>
+                <option value="written">Time of writing</option>
+                <option value="reading">Reading time</option>
+            </select>
+        </label>
+        <button
+            type="button"
+            name="order"
+            title="Flip sort direction"
+            aria-label="Flip sort direction"
+        >
+            <span class="tri" aria-hidden="true"></span>
+        </button>
+    </div>
     <span class="separator" aria-hidden="true">|</span>
     <label>
         Length:
@@ -142,6 +144,13 @@ const projectYears = yearsOf(entries.map(projectSortKey));
         margin-top: 1.5rem;
         font-size: 0.9rem;
         color: var(--muted);
+    }
+
+    /* same spacing as the form's own gap, so desktop looks unchanged */
+    .sort-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 1.25rem;
     }
 
     .entry-controls label {
@@ -261,5 +270,60 @@ const projectYears = yearsOf(entries.map(projectSortKey));
     .separator {
         color: var(--border);
         user-select: none;
+    }
+
+    /*
+     * Phone view: the four controls in a 2x2 grid — sort | length on
+     * the first row, written | project on the second. Labels sit above
+     * their selects so the full cell width is available; minmax(0, 1fr)
+     * lets the columns shrink so the grid can never outgrow the screen.
+     */
+    @media (max-width: 640px) {
+        .entry-controls {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 0.85rem 1rem;
+        }
+
+        .separator {
+            display: none;
+        }
+
+        .entry-controls label {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.35rem;
+            min-width: 0;
+            white-space: normal;
+            font-size: 0.9rem;
+        }
+
+        .entry-controls select {
+            width: 100%;
+            min-width: 0;
+            height: 2rem;
+            /* the label allows wrapping; the select's value must not */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sort-group {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
+            min-width: 0;
+        }
+
+        .sort-group label {
+            flex: 1;
+        }
+
+        .entry-controls button {
+            align-self: flex-end;
+            height: 2rem;
+            margin-left: 0;
+        }
     }
 </style>
