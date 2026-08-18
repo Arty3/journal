@@ -35,6 +35,11 @@ export async function GET(context: APIContext) {
         const categories = entry.data.tags
             .map((tag) => `        <category term="${escapeXml(tag)}"/>`)
             .join('\n');
+        /* readers render this as the entry body — without it, the
+         * one-line summary is all they show */
+        const content =
+            `<p>${escapeXml(entry.data.description)}</p>` +
+            `<p><a href="${url}">Read the full entry &#8594;</a></p>`;
         return [
             '    <entry>',
             `        <title>${escapeXml(entry.data.title)}</title>`,
@@ -43,6 +48,7 @@ export async function GET(context: APIContext) {
             `        <published>${entry.created.toISOString()}</published>`,
             `        <updated>${entry.updated.toISOString()}</updated>`,
             `        <summary>${escapeXml(entry.data.description)}</summary>`,
+            `        <content type="html">${escapeXml(content)}</content>`,
             ...(categories ? [categories] : []),
             '    </entry>',
         ].join('\n');
