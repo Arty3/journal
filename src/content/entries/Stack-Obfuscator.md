@@ -1338,7 +1338,7 @@ Here is the [repository](https://github.com/Arty3/Stack-Obfuscator).
 <details>
 <summary><b>Full source at the time of writing</b></summary>
 
-As mentioned before, some comments require correcting, but I've decided to keep it like this to preserve it.
+As mentioned before, some comments require correcting, but I've decided to keep it like this for preservation.
 
 ```cpp
 /* ************************************************************************** */
