@@ -17,7 +17,7 @@ status: Concluded
 > [!IMPORTANT]
 > This one is very long, and it gets pretty technical. I try to keep the ideas understandable as I go, so hopefully there is still something interesting here even if you do not care much about compilers and whatnot.
 >
-> Maybe play some minecraft music while reading this, that's what I did while writing it :)
+> Maybe play some Minecraft music while reading this, that's what I did while writing it :)
 
 ## Thinking in Systems
 
@@ -59,7 +59,7 @@ But the same way of thinking works from the other side.
 
 Understanding a system as a whole helps with architecture, technical debt, scaling, performance and reliability just as much as it helps with attacking it.
 
-That is much closer to what I feel I grew into. Security simply remained one of the places where I practised it and this project is probably one of the clearest examples.
+That is much closer to what I feel I grew into. Security simply remained one of the places where I practised it, and this project is probably one of the clearest examples.
 
 There is another part of this way of thinking that has followed me through a lot of my work: I have a tendency to challenge rules when I do not yet understand why they exist.
 
@@ -1676,7 +1676,7 @@ namespace __STACK_FRAGILE__
 #endif
 		}
 #endif
-		/* Return address is at [rbp+8] on 64-bit and [edp+4] on 32-bit */
+		/* Return address is at [rbp+8] on 64-bit and [ebp+4] on 32-bit */
 		return reinterpret_cast<void*>(const_cast<void**>(frame_ptr + 1));
 	}
 
@@ -1691,7 +1691,7 @@ namespace __STACK_FRAGILE__
 
 		/* Works for both 64 and 32 bit architectures:
 		 * on 64-bit frame_ptr + 1 points to [rbp+8]
-		 * on 32-bit frame_ptr + 1 points to [edp+4]
+		 * on 32-bit frame_ptr + 1 points to [ebp+4]
 		 *
 		 * The function is portable across architectures,
 		 * adding 1 to frame_ptr results in 4 bytes
