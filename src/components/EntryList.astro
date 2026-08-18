@@ -147,11 +147,13 @@ const hueOrder = (tags: string[]) =>
         margin: 0.4rem 0 0;
         color: var(--muted);
         font-size: 1.05rem;
+        font-style: italic;
     }
 
     .entry-list .meta {
         font-size: 0.85rem;
         margin-top: 0.3rem;
+        font-style: normal;
     }
 
     /* tags sit above the stretched link so they stay clickable */
@@ -165,7 +167,8 @@ const hueOrder = (tags: string[]) =>
      * The stretched title link sits over the card, so the time never
      * gets hovered directly — brighten it on card hover instead.
      */
-    .entry-list > li:hover :global(.reading-time) {
+    .entry-list > li:hover :global(.reading-time),
+    .entry-list > li:hover > p:not(.meta) {
         color: #fff;
     }
 </style>

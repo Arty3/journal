@@ -142,15 +142,20 @@ const orderedTags = [...entry.data.tags].sort(
         border-bottom: 1px solid var(--border);
     }
 
+    article > header h1 {
+        margin-bottom: 0;
+    }
+
     .description {
         color: var(--muted);
         margin: 0.5rem 0 0;
+        font-style: italic;
     }
 
     .meta {
         color: var(--muted);
         font-size: 0.9rem;
-        margin: 0.6rem 0 0;
+        margin: 1.75rem 0 0;
     }
 
     .reading-time {

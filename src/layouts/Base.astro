@@ -379,6 +379,20 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         text-align: left;
     }
 
+    /*
+     * Comparison tables place one screenshot per cell; stretch each
+     * to its cell so side-by-side images share the same scale, and
+     * keep the table itself narrower than the full column.
+     */
+    td img {
+        display: block;
+        width: 100%;
+    }
+
+    table:has(td img) {
+        width: 75%;
+    }
+
     .tags {
         display: flex;
         flex-wrap: wrap;
@@ -503,6 +517,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         table {
             display: block;
             overflow-x: auto;
+        }
+
+        /* the narrow column needs every pixel; undo the desktop shrink */
+        table:has(td img) {
+            width: 100%;
         }
 
         /*
