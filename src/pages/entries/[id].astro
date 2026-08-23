@@ -2,7 +2,7 @@
 import 'katex/dist/katex.min.css';
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { readingTime, sortedEntries, visibleStatus } from '../../lib/entries';
+import { readingTimeLabel, sortedEntries, visibleStatus } from '../../lib/entries';
 import { allTagHues } from '../../lib/tagColors';
 
 export async function getStaticPaths() {
@@ -23,8 +23,9 @@ const orderedTags = [...entry.data.tags].sort(
 ---
 
 <Base
-    title={`${entry.data.title} - Luca's Journal - ${readingTime(entry)} min`}
+    title={`${entry.data.title} - Luca's Journal - ${readingTimeLabel(entry)}`}
     description={entry.data.description}
+    image={entry.data.ogImage}
 >
     <article>
         <header>
@@ -72,13 +73,16 @@ const orderedTags = [...entry.data.tags].sort(
                     <circle cx="12" cy="12" r="9" />
                     <path d="M12 7v5l3 2" />
                 </svg>
-                {readingTime(entry)} min
+                {readingTimeLabel(entry)}
             </span>
             <p class="back">
                 <a href="/entries/">&larr; All entries</a>
             </p>
         </header>
         <Content />
+        <p class="back back-bottom">
+            <a href="/entries/">&larr; All entries</a>
+        </p>
     </article>
     <dialog class="lightbox" aria-label="Full screen image">
         <img src="" alt="" />
@@ -93,9 +97,8 @@ const orderedTags = [...entry.data.tags].sort(
 
         mermaid.initialize({
             startOnLoad: false,
-            theme: window.matchMedia('(prefers-color-scheme: dark)').matches
-                ? 'dark'
-                : 'default',
+            /* the site is dark-only */
+            theme: 'dark',
             fontFamily:
                 "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
         });
@@ -110,6 +113,64 @@ const orderedTags = [...entry.data.tags].sort(
         }
 
         await mermaid.run({ querySelector: 'pre.mermaid' });
+    }
+</script>
+
+<script>
+    /*
+     * Touch devices have no hover, so the heading anchors would never
+     * show: there, tapping a heading toggles its anchor instead. The
+     * anchor itself still navigates. Hover devices are left alone.
+     */
+    if (window.matchMedia('(hover: none)').matches) {
+        for (const heading of document.querySelectorAll(
+            'article :is(h1, h2, h3, h4, h5, h6):has(.heading-anchor)',
+        )) {
+            heading.addEventListener('click', (event) => {
+                if ((event.target as HTMLElement).closest('.heading-anchor')) return;
+                heading.classList.toggle('show-anchor');
+            });
+        }
+    }
+</script>
+
+<script>
+    /*
+     * A copy button in the corner of every code block (mermaid sources
+     * excluded — they become diagrams). The block is wrapped so the
+     * button stays pinned while the code scrolls sideways beneath it.
+     * Same icon pair and copied-feedback as the feed-URL button.
+     */
+    const COPY_ICON = `<svg class="copy" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg>`;
+    const CHECK_ICON = `<svg class="check" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>`;
+
+    for (const code of document.querySelectorAll<HTMLElement>(
+        'article pre > code:not(.language-mermaid)',
+    )) {
+        const pre = code.parentElement;
+        if (!pre) continue;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'code-block';
+        pre.replaceWith(wrapper);
+        wrapper.append(pre);
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'copy-code';
+        button.title = 'Copy code';
+        button.setAttribute('aria-label', 'Copy code');
+        button.innerHTML = COPY_ICON + CHECK_ICON;
+        wrapper.append(button);
+
+        button.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(code.innerText);
+            } catch {
+                return;
+            }
+            button.classList.add('copied');
+            setTimeout(() => button.classList.remove('copied'), 1500);
+        });
     }
 </script>
 
@@ -168,6 +229,11 @@ const orderedTags = [...entry.data.tags].sort(
         font-size: 1.1rem;
     }
 
+    /* same link again after the body, so nobody scrolls back up */
+    .back-bottom {
+        margin-top: 2.5rem;
+    }
+
     .back a {
         position: relative;
         text-decoration: none;
@@ -186,8 +252,71 @@ const orderedTags = [...entry.data.tags].sort(
         transition: transform 0.2s ease;
     }
 
-    .back a:hover::after {
+    .back a:hover::after,
+    .back a:focus-visible::after {
         transform: scaleX(1);
+    }
+
+    /* JS-created, so unscoped; the wrapper anchors the corner button */
+    article :global(.code-block) {
+        position: relative;
+    }
+
+    /* revealed on hover of the block (always shown where hover
+       doesn't exist), in the feed-URL button's style */
+    article :global(.copy-code) {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        padding: 0.3rem;
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--muted);
+        cursor: pointer;
+        opacity: 0;
+        transition:
+            opacity 0.15s ease,
+            color 0.15s ease,
+            border-color 0.15s ease;
+    }
+
+    article :global(.code-block:hover .copy-code),
+    article :global(.copy-code:focus-visible),
+    article :global(.copy-code.copied) {
+        opacity: 1;
+    }
+
+    @media (hover: none) {
+        article :global(.copy-code) {
+            opacity: 1;
+        }
+    }
+
+    article :global(.copy-code:hover),
+    article :global(.copy-code:focus-visible) {
+        color: var(--accent);
+        border-color: var(--accent);
+    }
+
+    article :global(.copy-code svg) {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    article :global(.copy-code .check) {
+        display: none;
+        color: var(--green);
+    }
+
+    article :global(.copy-code.copied .copy) {
+        display: none;
+    }
+
+    article :global(.copy-code.copied .check) {
+        display: block;
     }
 
     /* markdown content isn't scoped, hence the :global() */

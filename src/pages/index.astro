@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import { sortedEntries, latestWritten, readingTime, visibleStatus } from '../lib/entries';
+import { sortedEntries, latestWritten, readingTimeLabel, visibleStatus } from '../lib/entries';
 import { allTagHues } from '../lib/tagColors';
 
 const latest = latestWritten(await sortedEntries());
@@ -105,7 +105,7 @@ const hobbies = [
                             <circle cx="12" cy="12" r="9" />
                             <path d="M12 7v5l3 2" />
                         </svg>
-                        {readingTime(latest)} min
+                        {readingTimeLabel(latest)}
                     </span>
                 </div>
                 <p class="recent-browse">
@@ -468,8 +468,34 @@ const hobbies = [
         margin-top: 1.25rem;
     }
 
+    /*
+     * The accent bar as the left edge of the rounded box it once was:
+     * a 4px stroke that curves around both left corners and stops with
+     * round line caps. Drawn as an SVG mask over a solid layer (rather
+     * than a clipped border) so the caps sit perpendicular to the
+     * stroke, and the color still comes from the theme variable. The
+     * corner hooks are fixed 14px tiles; a gradient layer fills the
+     * straight run between them.
+     */
     .markdown-alert.feed-note {
         --alert-color: var(--green);
+        position: relative;
+        border-left: none;
+        padding-left: calc(1rem + 4px);
+    }
+
+    .markdown-alert.feed-note::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--alert-color);
+        mask:
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M10 2A8 8 0 0 0 2 10V14' fill='none' stroke='%23000' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E")
+                left top / 14px 14px no-repeat,
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M2 0V4A8 8 0 0 0 10 12' fill='none' stroke='%23000' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E")
+                left bottom / 14px 14px no-repeat,
+            linear-gradient(#000 0 0) 0 14px / 4px calc(100% - 28px) no-repeat;
+        pointer-events: none;
     }
 
     /* the bell sits between the baseline and the stock text-bottom */
@@ -559,7 +585,8 @@ const hobbies = [
         transition: transform 0.2s ease;
     }
 
-    .recent-browse a:hover::after {
+    .recent-browse a:hover::after,
+    .recent-browse a:focus-visible::after {
         transform: scaleX(1);
     }
 
@@ -574,9 +601,17 @@ const hobbies = [
             border-color 0.2s ease;
     }
 
-    .recent-card:hover {
+    /* keyboard focus mirrors the hover affordances */
+    .recent-card:hover,
+    .recent-card:has(.recent-title:focus-visible) {
         transform: scale(1.02);
         border-color: var(--accent);
+    }
+
+    /* the card's accent border and underline mark focus; the default
+       ring would only hug the title text */
+    .recent-title:focus-visible {
+        outline: none;
     }
 
     .recent-title {
@@ -608,7 +643,8 @@ const hobbies = [
         width: fit-content;
     }
 
-    .recent-card:hover .recent-title {
+    .recent-card:hover .recent-title,
+    .recent-title:focus-visible {
         background-size: 100% 2px;
     }
 
@@ -629,8 +665,11 @@ const hobbies = [
 
     /* same brighten-on-card-hover as the entry list */
     .recent-card:hover .reading-time,
-    .recent-card:hover .recent-desc {
-        color: #fff;
+    .recent-card:hover .recent-desc,
+    .recent-card:has(.recent-title:focus-visible) .reading-time,
+    .recent-card:has(.recent-title:focus-visible) .recent-desc {
+        /* fg, not #fff: white would vanish on the light theme */
+        color: var(--fg);
     }
 
     .bottom-cta {

@@ -167,6 +167,18 @@ export function readingTime(entry: Entry): number {
     return minutes;
 }
 
+/**
+ * Reading time formatted for display: plain minutes under an hour
+ * ("45 min"), hours with the minute remainder above ("3h 30 min", "2h").
+ */
+export function readingTimeLabel(entry: Entry): string {
+    const minutes = readingTime(entry);
+    if (minutes < 60) return `${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    const rest = minutes % 60;
+    return rest ? `${hours}h ${rest} min` : `${hours}h`;
+}
+
 /** Every tag in use, with the number of entries carrying it. */
 export function tagCounts(entries: Entry[]): Map<string, number> {
     const counts = new Map<string, number>();

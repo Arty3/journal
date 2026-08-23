@@ -2,6 +2,7 @@
 import {
     projectSortKey,
     readingTime,
+    readingTimeLabel,
     visibleStatus,
     writtenSortKey,
     type Entry,
@@ -71,7 +72,7 @@ const hueOrder = (tags: string[]) =>
                         <circle cx="12" cy="12" r="9" />
                         <path d="M12 7v5l3 2" />
                     </svg>
-                    {readingTime(entry)} min
+                    {readingTimeLabel(entry)}
                 </span>
             </li>
         ))
@@ -92,8 +93,16 @@ const hueOrder = (tags: string[]) =>
         transition: transform 0.2s ease;
     }
 
-    .entry-list > li:hover {
+    /* keyboard focus mirrors the hover affordances throughout */
+    .entry-list > li:hover,
+    .entry-list > li:has(h2 a:focus-visible) {
         transform: scale(1.02);
+    }
+
+    /* the animated underline plus the card lift mark focus clearly;
+       the default ring would only hug the title text */
+    .entry-list h2 a:focus-visible {
+        outline: none;
     }
 
     .entry-list > li:first-child {
@@ -139,7 +148,8 @@ const hueOrder = (tags: string[]) =>
         inset: 0;
     }
 
-    .entry-list > li:hover h2 a {
+    .entry-list > li:hover h2 a,
+    .entry-list h2 a:focus-visible {
         background-size: 100% 2px;
     }
 
@@ -168,7 +178,10 @@ const hueOrder = (tags: string[]) =>
      * gets hovered directly — brighten it on card hover instead.
      */
     .entry-list > li:hover :global(.reading-time),
-    .entry-list > li:hover > p:not(.meta) {
-        color: #fff;
+    .entry-list > li:hover > p:not(.meta),
+    .entry-list > li:has(h2 a:focus-visible) :global(.reading-time),
+    .entry-list > li:has(h2 a:focus-visible) > p:not(.meta) {
+        /* fg, not #fff: white would vanish on the light theme */
+        color: var(--fg);
     }
 </style>

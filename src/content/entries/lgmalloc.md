@@ -243,7 +243,7 @@ From the [official design documentation](https://github.com/google/tcmalloc/blob
 Here is a rough overview of `tcmalloc`'s internal structure:
 
 <div align="center">
-	<img src="../../assets/entries/lgmalloc/tcmalloc_internals.png" width="50%"/>
+	<img src="../../assets/entries/lgmalloc/tcmalloc_internals.png" width="50%" style="border-radius: 16px;"/>
 </div>
 
 Essentially, `tcmalloc` tries to make the overwhelmingly common allocation path almost entirely local to the executing thread or CPU, which makes it extremely effective for highly concurrent programs performing enormous numbers of small allocations.

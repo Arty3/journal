@@ -2,10 +2,13 @@
 interface Props {
     title: string;
     description?: string;
+    /** Social-preview image path; defaults to the site icon card. */
+    image?: string;
 }
 
-const { title, description } = Astro.props;
+const { title, description, image } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(image ?? '/og.png', Astro.site);
 ---
 
 <!doctype html>
@@ -13,14 +16,20 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#16161a" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <!-- iOS ignores SVG favicons for home-screen and tab icons -->
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <title>{title}</title>
         {description && <meta name="description" content={description} />}
         <link rel="canonical" href={canonical} />
         <meta property="og:title" content={title} />
         {description && <meta property="og:description" content={description} />}
+        <meta property="og:site_name" content="Luca's Journal" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
+        <meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
         <link
             rel="alternate"
             type="application/rss+xml"
@@ -35,6 +44,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         />
     </head>
     <body>
+        <a class="skip-link" href="#main-content">Skip to content</a>
         <header>
             <nav>
                 <a href="/" class="site-title">Home</a>
@@ -90,7 +100,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
                 </div>
             </nav>
         </header>
-        <main>
+        <main id="main-content">
             <slot />
         </main>
         <footer>
@@ -102,27 +112,17 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 </html>
 
 <style is:global>
+    /* the site is deliberately dark-only, whatever the OS prefers */
     :root {
-        --bg: #fdfdfc;
-        --fg: #1c1c1a;
-        --muted: #6b6b66;
-        --accent: #2c5aa0;
-        --green: #16a34a;
-        --border: #e4e4e0;
-        --tag-bg: #f0f0ec;
-        color-scheme: light dark;
-    }
-
-    @media (prefers-color-scheme: dark) {
-        :root {
-            --bg: #16161a;
-            --fg: #e6e6e2;
-            --muted: #97978f;
-            --accent: #8ab4e8;
-            --green: #4cc273;
-            --border: #2c2c32;
-            --tag-bg: #24242a;
-        }
+        --bg: #16161a;
+        --fg: #e6e6e2;
+        --muted: #97978f;
+        --accent: #8ab4e8;
+        --green: #4cc273;
+        --red: #f85149;
+        --border: #2c2c32;
+        --tag-bg: #24242a;
+        color-scheme: dark;
     }
 
     * {
@@ -139,6 +139,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
          * would otherwise shift the whole layout sideways.
          */
         scrollbar-gutter: stable;
+        /* anchor and skip-link jumps glide (reduced-motion undoes this) */
+        scroll-behavior: smooth;
     }
 
     body {
@@ -192,7 +194,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     }
 
     .site-title:hover::after,
-    .nav-link:hover::after {
+    .nav-link:hover::after,
+    .site-title:focus-visible::after,
+    .nav-link:focus-visible::after {
         transform: scaleX(1);
     }
 
@@ -210,7 +214,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         transition: color 0.15s ease;
     }
 
-    .icon-link:hover {
+    .icon-link:hover,
+    .icon-link:focus-visible {
         color: var(--accent);
     }
 
@@ -223,10 +228,36 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         color: var(--accent);
     }
 
+    /* hidden until keyboard focus, then pinned to the top-left corner */
+    .skip-link {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        padding: 0.5rem 1rem;
+        background: var(--accent);
+        color: var(--bg);
+        text-decoration: none;
+        font-weight: 700;
+        border-radius: 0 0 8px 0;
+        transform: translateY(-150%);
+        transition: transform 0.15s ease;
+    }
+
+    .skip-link:focus-visible {
+        transform: none;
+    }
+
     h1,
     h2,
     h3 {
         line-height: 1.25;
+        /* no headline wrapping into a line and a dangling word */
+        text-wrap: balance;
+    }
+
+    p {
+        text-wrap: pretty;
     }
 
     h1 {
@@ -331,29 +362,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     }
 
     .markdown-alert-important {
-        --alert-color: #8250df;
+        --alert-color: #a371f7;
     }
 
     .markdown-alert-warning {
-        --alert-color: #9a6700;
+        --alert-color: #d29922;
     }
 
     .markdown-alert-caution {
-        --alert-color: #cf222e;
-    }
-
-    @media (prefers-color-scheme: dark) {
-        .markdown-alert-important {
-            --alert-color: #a371f7;
-        }
-
-        .markdown-alert-warning {
-            --alert-color: #d29922;
-        }
-
-        .markdown-alert-caution {
-            --alert-color: #f85149;
-        }
+        --alert-color: #f85149;
     }
 
     img {
@@ -411,8 +428,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
          * hover and selection stay in the tag's own hue, only more
          * vivid.
          */
-        background: hsl(var(--tag-hue, 220) 30% 91%);
-        color: hsl(var(--tag-hue, 220) 30% 34%);
+        background: hsl(var(--tag-hue, 220) 22% 21%);
+        color: hsl(var(--tag-hue, 220) 35% 74%);
         border-radius: 999px;
         padding: 0.1rem 0.65rem;
         font-size: 0.8rem;
@@ -423,34 +440,17 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
             box-shadow 0.15s ease;
     }
 
-    .tags a:hover {
-        background: hsl(var(--tag-hue, 220) 75% 84%);
-        color: hsl(var(--tag-hue, 220) 85% 24%);
+    .tags a:hover,
+    .tags a:focus-visible {
+        background: hsl(var(--tag-hue, 220) 60% 32%);
+        color: hsl(var(--tag-hue, 220) 95% 82%);
     }
 
     /* selected as filter (entries page) or the current tag page */
     .tags a.active,
     .tags a[aria-current='page'] {
-        background: hsl(var(--tag-hue, 220) 90% 80%);
-        color: hsl(var(--tag-hue, 220) 100% 12%);
-    }
-
-    @media (prefers-color-scheme: dark) {
-        .tags a {
-            background: hsl(var(--tag-hue, 220) 22% 21%);
-            color: hsl(var(--tag-hue, 220) 35% 74%);
-        }
-
-        .tags a:hover {
-            background: hsl(var(--tag-hue, 220) 60% 32%);
-            color: hsl(var(--tag-hue, 220) 95% 82%);
-        }
-
-        .tags a.active,
-        .tags a[aria-current='page'] {
-            background: hsl(var(--tag-hue, 220) 80% 38%);
-            color: hsl(var(--tag-hue, 220) 100% 96%);
-        }
+        background: hsl(var(--tag-hue, 220) 80% 38%);
+        color: hsl(var(--tag-hue, 220) 100% 96%);
     }
 
     /* plain muted text, no pill chrome */
@@ -483,10 +483,60 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         color: inherit;
     }
 
-    /* wide display math scrolls within its own box, not the page */
+    /*
+     * The '#' appended to entry headings by rehype-autolink-headings:
+     * invisible until the heading is hovered (or the anchor itself is
+     * focused), so long entries can be deep-linked per section.
+     */
+    .heading-anchor {
+        margin-left: 0.45em;
+        color: var(--muted);
+        text-decoration: none;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+    }
+
+    :is(h1, h2, h3, h4, h5, h6):hover .heading-anchor,
+    .heading-anchor:focus-visible,
+    /* touch devices can't hover: a tap on the heading toggles this
+       class instead (script in the entry page) */
+    .show-anchor .heading-anchor {
+        opacity: 1;
+    }
+
+    .heading-anchor:hover,
+    .heading-anchor:focus-visible {
+        color: var(--accent);
+    }
+
+    /* a little air above a heading jumped to via its anchor */
+    :is(h1, h2, h3, h4, h5, h6)[id] {
+        scroll-margin-top: 1rem;
+    }
+
+    /* wide display math scrolls within its own box, not the page;
+       vertical padding keeps overflow-y from clipping tall glyphs
+       (superscripts, fraction numerators) whose ink extends slightly
+       past KaTeX's computed line box */
     .katex-display {
         overflow-x: auto;
         overflow-y: hidden;
+        padding-block: 0.25em;
+    }
+
+    /*
+     * Collapse every transition and animation for readers who ask for
+     * reduced motion — state changes still happen, just instantly.
+     */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            transition-duration: 0.01ms !important;
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            scroll-behavior: auto !important;
+        }
     }
 
     @media (max-width: 640px) {
@@ -530,6 +580,78 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
          */
         main img[width] {
             width: 100%;
+        }
+    }
+
+    /*
+     * Print: the site is dark-only, and printers drop backgrounds, so
+     * without this an entry would come out as pale grey text on white.
+     * Swap the tokens to ink-on-paper, hide the chrome, and flatten the
+     * syntax-highlighted code (its dark-theme pastels don't survive on
+     * paper either).
+     */
+    @media print {
+        :root {
+            --bg: #fff;
+            --fg: #111;
+            --muted: #555;
+            --accent: #1a3d73;
+            --green: #1a7f3c;
+            --red: #b3261e;
+            --border: #bbb;
+            --tag-bg: #eee;
+            color-scheme: light;
+        }
+
+        body {
+            max-width: none;
+            padding: 0;
+            font-size: 11pt;
+        }
+
+        header nav,
+        footer,
+        .skip-link,
+        .back,
+        .heading-anchor,
+        .code-block button,
+        .lightbox {
+            display: none !important;
+        }
+
+        main a {
+            color: inherit;
+            text-decoration: underline;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-break: break-word;
+            border: 1px solid var(--border);
+        }
+
+        pre,
+        pre * {
+            color: #111 !important;
+            background: #f4f4f4 !important;
+        }
+
+        .tags a {
+            color: #333 !important;
+            background: none !important;
+            border: 1px solid #999;
+        }
+
+        h1,
+        h2,
+        h3 {
+            break-after: avoid;
+        }
+
+        img,
+        pre,
+        table {
+            break-inside: avoid;
         }
     }
 </style>

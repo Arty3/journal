@@ -14,6 +14,12 @@ const entries = defineCollection({
         project: z.coerce.string().optional(),
         /** Project status, e.g. "Abandoned", "Ongoing", "Completed". */
         status: z.string().optional(),
+        /**
+         * Social-preview image for this entry, as a site-absolute path
+         * (e.g. "/assets/entries/foo/cover.png"). Falls back to the
+         * site-wide /og.png.
+         */
+        ogImage: z.string().optional(),
     }),
 });
 

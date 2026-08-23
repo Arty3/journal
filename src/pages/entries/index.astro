@@ -16,18 +16,22 @@ const sortedTags = [...tags.keys()].sort(
 
 <Base title="Entries — Luca's Journal" description="All journal entries, newest first.">
     <h1>Entries</h1>
-    {entries.length > 0 && <EntryControls entries={entries} />}
     {
-        tags.size > 0 && (
-            <ul class="tags tag-cloud">
-                {sortedTags.map((tag) => (
-                    <li>
-                        <a href={`/tags/${tag}/`} style={`--tag-hue: ${tagHues.get(tag)}`}>
-                            {tag}
-                        </a>
-                    </li>
-                ))}
-            </ul>
+        entries.length > 0 && (
+            <div class="controls">
+                <EntryControls entries={entries} />
+                {tags.size > 0 && (
+                    <ul class="tags tag-cloud">
+                        {sortedTags.map((tag) => (
+                            <li>
+                                <a href={`/tags/${tag}/`} style={`--tag-hue: ${tagHues.get(tag)}`}>
+                                    {tag}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
         )
     }
     {entries.length > 0 && <p class="no-matches" hidden>No entries match these filters.</p>}
@@ -36,13 +40,99 @@ const sortedTags = [...tags.keys()].sort(
     </div>
 </Base>
 
+<script>
+    /*
+     * Wrapping rule for the tag cloud: a pill may stick out past the
+     * filters' right edge as long as it starts before it. Flex would
+     * wrap any pill that doesn't fully fit, so a negative margin-right
+     * pulls an overflowing pill's flex end back to the boundary — it
+     * renders past the edge while the following pill still wraps.
+     */
+    const cloud = document.querySelector<HTMLUListElement>('.tag-cloud');
+
+    if (cloud) {
+        const reflow = () => {
+            const items = [...cloud.querySelectorAll<HTMLLIElement>(':scope > li')];
+            for (const item of items) item.style.marginRight = '';
+            const width = cloud.getBoundingClientRect().width;
+            const gap = parseFloat(getComputedStyle(cloud).columnGap) || 0;
+            let x = 0; /* start position of the next pill on its line */
+            for (const item of items) {
+                if (x >= width) x = 0; /* would start past the edge: wraps */
+                const w = item.getBoundingClientRect().width;
+                /* the half-pixel keeps our arithmetic and the flex
+                   algorithm from disagreeing on hairline fits */
+                if (x > 0 && x + w > width - 0.5) {
+                    item.style.marginRight = `${width - (x + w)}px`;
+                    x = width; /* line is full */
+                } else {
+                    x += w + gap;
+                }
+            }
+        };
+
+        reflow();
+        /* pill widths settle once the webfont is in */
+        document.fonts?.ready.then(reflow);
+        const observer = new ResizeObserver(reflow);
+        observer.observe(cloud);
+        /* the filter script grows pills with match counts — rewrap */
+        for (const item of cloud.querySelectorAll(':scope > li')) {
+            observer.observe(item);
+        }
+    }
+</script>
+
 <style>
+    /* sized by the filter row alone, so the tag cloud wraps at its edge */
+    .controls {
+        width: fit-content;
+        max-width: 100%;
+    }
+
     /* match the gap the sort/filter controls use between their rows */
     .tag-cloud {
+        /*
+         * Zero intrinsic width keeps the cloud from widening .controls
+         * beyond the filters; the min-width then resolves against the
+         * settled width, which is where the pills wrap.
+         */
+        width: 0;
+        min-width: 100%;
         margin-top: 0.6rem;
     }
 
+    /* a pill alone on its line starts before the edge, so it may
+       overflow — never let flex squeeze it to fit instead */
+    .tag-cloud li {
+        flex-shrink: 0;
+        transition: opacity 0.15s ease;
+    }
+
+    /*
+     * While filtering by tag, each pill carries the number of entries
+     * the current combination plus that tag would leave (set by the
+     * filter script; rendered from the attribute so the link text
+     * itself stays just the tag name).
+     */
+    .tag-cloud a[data-count]::after {
+        content: '· ' attr(data-count);
+        margin-left: 0.35em;
+        font-size: 0.9em;
+        opacity: 0.6;
+    }
+
+    /* no entries pair this tag with the selected combination */
+    .tag-cloud li:has(.dead) {
+        opacity: 0.45;
+    }
+
     @media (max-width: 640px) {
+        /* the filters become a 2x2 grid here — keep it full width */
+        .controls {
+            width: 100%;
+        }
+
         .tag-cloud {
             margin-top: 0.85rem;
         }

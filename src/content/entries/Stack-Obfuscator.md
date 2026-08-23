@@ -49,7 +49,7 @@ A vulnerability can ultimately come down to one badly written line of code, but 
 
 It is a little like trying to infiltrate a compound in an Assassin's Creed game. You do not inspect every square centimetre of every wall. You look at guard movements, height, busy and quiet areas, escape routes, blind spots and how each part interacts with everything around it.
 
-<img src="../../assets/entries/stack-obfuscator/assassins_creed.png" width="60%" />
+<img src="../../assets/entries/stack-obfuscator/assassins_creed.png" width="60%" style="border-radius: 16px;" />
 
 ### *This is you, but with code! :)*
 
