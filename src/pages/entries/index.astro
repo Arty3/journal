@@ -49,11 +49,19 @@ const sortedTags = [...tags.keys()].sort(
      * renders past the edge while the following pill still wraps.
      */
     const cloud = document.querySelector<HTMLUListElement>('.tag-cloud');
+    /* same breakpoint as the phone layout in the styles below */
+    const phone = window.matchMedia('(max-width: 640px)');
 
     if (cloud) {
         const reflow = () => {
             const items = [...cloud.querySelectorAll<HTMLLIElement>(':scope > li')];
             for (const item of items) item.style.marginRight = '';
+            /*
+             * On phones the cloud spans the whole screen, so a pill
+             * sticking out past the edge would widen the page and make
+             * the browser zoom out — there, pills simply wrap.
+             */
+            if (phone.matches) return;
             const width = cloud.getBoundingClientRect().width;
             const gap = parseFloat(getComputedStyle(cloud).columnGap) || 0;
             let x = 0; /* start position of the next pill on its line */
@@ -74,6 +82,7 @@ const sortedTags = [...tags.keys()].sort(
         reflow();
         /* pill widths settle once the webfont is in */
         document.fonts?.ready.then(reflow);
+        phone.addEventListener('change', reflow);
         const observer = new ResizeObserver(reflow);
         observer.observe(cloud);
         /* the filter script grows pills with match counts — rewrap */
@@ -135,6 +144,8 @@ const sortedTags = [...tags.keys()].sort(
 
         .tag-cloud {
             margin-top: 0.85rem;
+            /* hard barrier: nothing in the cloud may widen the page */
+            overflow-x: clip;
         }
     }
 
