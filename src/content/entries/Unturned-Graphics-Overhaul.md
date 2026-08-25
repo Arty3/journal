@@ -40,7 +40,7 @@ Over time I ended up occupying quite a few different corners of that community. 
 
 Those projects deserve their own entries, but they also meant that I gradually stopped looking at Unturned purely as a player and started learning how the game actually worked.
 
-That eventually included direct contact with Nelson, the creator of the game. Over the years I reported bugs to him, found and disclosed potential vulnerabilities, and received quite a lot of feedback while I was learning.
+That eventually included direct contact with Nelson, the creator of the game. Over the years I reported bugs to him, found and disclosed potential vulnerabilities, and received more feedback than I deserved while I was learning.
 
 I want to especially thank him for his relentless dedication and effort in the community, even taking the time to answer my questions and those of countless other people. That level of engagement with a community is not especially common:
 
