@@ -5,13 +5,13 @@ import { getCollection } from 'astro:content';
  * Build-time semantic tag colors.
  *
  * Every tag is embedded with a small sentence-transformer, the tags
- * are ordered by spectral seriation — the Fiedler vector of the
- * normalized Laplacian of their similarity graph, a 1D layout that
- * weighs every pairwise similarity — and the order is laid across the
- * hue spectrum. Related tags ("python", "machine learning") end up
- * with neighboring hues; unrelated ones sit far apart. Hue gaps blend
- * semantic distance with even spacing, so a small tag set spreads out
- * with high contrast and a growing one fills the spectrum in.
+ * are ordered by seriation — the shortest open path through them by
+ * cosine distance, so each tag sits next to its closest relatives —
+ * and the order is laid across the hue spectrum. Related tags
+ * ("python", "machine learning") end up with neighboring hues;
+ * unrelated ones sit far apart. Hue gaps blend semantic distance with
+ * even spacing, so a small tag set spreads out with high contrast and
+ * a growing one fills the spectrum in.
  *
  * Embeddings are cached in src/data/tag-embeddings.json (meant to be
  * committed) so the model only loads when a new tag appears.
@@ -108,87 +108,83 @@ function normalize(vector: number[]): number[] {
 }
 
 /**
- * Eigendecomposition of a small symmetric matrix (cyclic Jacobi).
- * Returns eigenpairs sorted by ascending eigenvalue. Robust and
- * deterministic — tag counts are tiny, so cost is irrelevant.
+ * Seriation as a shortest open path: the order minimizing the summed
+ * cosine distance between neighbors, which is exactly what the hue
+ * layout rewards — only adjacent tags share a region of the spectrum.
+ * Nearest-neighbor tours from every start, each polished with 2-opt
+ * (segment reversal) and or-opt (single relocation); the shortest
+ * wins. Deterministic, and tag counts are tiny, so cost is irrelevant.
+ *
+ * A Fiedler-vector (spectral) layout was used before this. With every
+ * tag embedded through the same context template, all pairs are
+ * moderately similar, the similarity graph is nearly complete, and the
+ * spectral order interleaved unrelated clusters ("rendering" between
+ * "memory allocation" and "architectures"); the path objective keeps
+ * them contiguous.
  */
-function jacobiEigen(matrix: number[][]): { value: number; vector: number[] }[] {
-    const n = matrix.length;
-    const a = matrix.map((row) => [...row]);
-    const vectors = Array.from({ length: n }, (_, i) =>
-        Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)),
-    );
-    for (let sweep = 0; sweep < 100; sweep++) {
-        let off = 0;
-        for (let p = 0; p < n; p++) {
-            for (let q = p + 1; q < n; q++) off += a[p][q] ** 2;
-        }
-        if (off < 1e-20) break;
-        for (let p = 0; p < n; p++) {
-            for (let q = p + 1; q < n; q++) {
-                if (Math.abs(a[p][q]) < 1e-15) continue;
-                const theta = (a[q][q] - a[p][p]) / (2 * a[p][q]);
-                const t =
-                    Math.sign(theta || 1) /
-                    (Math.abs(theta) + Math.sqrt(theta * theta + 1));
-                const c = 1 / Math.sqrt(t * t + 1);
-                const s = t * c;
-                for (let k = 0; k < n; k++) {
-                    const akp = a[k][p];
-                    const akq = a[k][q];
-                    a[k][p] = c * akp - s * akq;
-                    a[k][q] = s * akp + c * akq;
-                }
-                for (let k = 0; k < n; k++) {
-                    const apk = a[p][k];
-                    const aqk = a[q][k];
-                    a[p][k] = c * apk - s * aqk;
-                    a[q][k] = s * apk + c * aqk;
-                }
-                for (let k = 0; k < n; k++) {
-                    const vkp = vectors[k][p];
-                    const vkq = vectors[k][q];
-                    vectors[k][p] = c * vkp - s * vkq;
-                    vectors[k][q] = s * vkp + c * vkq;
-                }
-            }
-        }
-    }
-    return a
-        .map((row, i) => ({ value: row[i], vector: vectors.map((r) => r[i]) }))
-        .sort((x, y) => x.value - y.value);
-}
-
-/**
- * Spectral seriation: order the tags by the Fiedler vector of the
- * normalized Laplacian of their similarity graph. The normalization
- * keeps hub tags (similar to everything) from distorting the layout;
- * squaring the similarities emphasizes strong bonds.
- */
-function spectralOrder(vectors: number[][]): {
+function pathOrder(vectors: number[][]): {
     order: number[];
     distance: (a: number, b: number) => number;
 } {
     const unit = vectors.map(normalize);
     const n = unit.length;
-    const similarity = (a: number, b: number) =>
-        unit[a].reduce((sum, x, j) => sum + x * unit[b][j], 0);
-    const distance = (a: number, b: number) => 1 - similarity(a, b);
+    const distance = (a: number, b: number) =>
+        1 - unit[a].reduce((sum, x, j) => sum + x * unit[b][j], 0);
+    const length = (path: number[]) =>
+        path.slice(0, -1).reduce((sum, _, i) => sum + distance(path[i], path[i + 1]), 0);
 
-    const weights = unit.map((_, i) =>
-        unit.map((_, j) => (i === j ? 0 : Math.max(0, similarity(i, j)) ** 2)),
-    );
-    const degree = weights.map((row) => row.reduce((sum, w) => sum + w, 0));
-    const invRoot = degree.map((d) => (d > 0 ? 1 / Math.sqrt(d) : 0));
-    const laplacian = weights.map((row, i) =>
-        row.map((w, j) => (i === j ? 1 : -w * invRoot[i] * invRoot[j])),
-    );
+    let best: number[] | null = null;
+    for (let start = 0; start < n; start++) {
+        const left = new Set(unit.map((_, i) => i));
+        left.delete(start);
+        const path = [start];
+        while (left.size > 0) {
+            const last = path[path.length - 1];
+            let next = -1;
+            for (const candidate of left) {
+                if (next < 0 || distance(last, candidate) < distance(last, next)) {
+                    next = candidate;
+                }
+            }
+            left.delete(next);
+            path.push(next);
+        }
 
-    const fiedler = jacobiEigen(laplacian)[1].vector;
-    /* undo the degree scaling to recover the random-walk embedding */
-    const coordinate = fiedler.map((x, i) => x * invRoot[i]);
-    const order = unit.map((_, i) => i).sort((a, b) => coordinate[a] - coordinate[b]);
-    return { order, distance };
+        let improved = true;
+        while (improved) {
+            improved = false;
+            /* 2-opt: reverse a segment */
+            for (let i = 0; i < n - 1; i++) {
+                for (let k = i + 1; k < n; k++) {
+                    const candidate = [
+                        ...path.slice(0, i),
+                        ...path.slice(i, k + 1).reverse(),
+                        ...path.slice(k + 1),
+                    ];
+                    if (length(candidate) < length(path) - 1e-12) {
+                        path.splice(0, n, ...candidate);
+                        improved = true;
+                    }
+                }
+            }
+            /* or-opt: relocate a single tag */
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    if (i === j) continue;
+                    const candidate = [...path];
+                    const [moved] = candidate.splice(i, 1);
+                    candidate.splice(j, 0, moved);
+                    if (length(candidate) < length(path) - 1e-12) {
+                        path.splice(0, n, ...candidate);
+                        improved = true;
+                    }
+                }
+            }
+        }
+
+        if (best === null || length(path) < length(best)) best = [...path];
+    }
+    return { order: best!, distance };
 }
 
 let huesPromise: Promise<Map<string, number>> | null = null;
@@ -207,11 +203,15 @@ async function computeHues(): Promise<Map<string, number>> {
     const embeddings = await embedTags(tags);
     if (tags.length === 1) return new Map([[tags[0], 220]]);
 
-    const { order, distance } = spectralOrder(tags.map((tag) => embeddings[tag]));
+    const { order, distance } = pathOrder(tags.map((tag) => embeddings[tag]));
     const n = order.length;
 
-    /* The eigenvector's sign is arbitrary — orient deterministically. */
-    if (tags[order[n - 1]].localeCompare(tags[order[0]]) < 0) order.reverse();
+    /*
+     * A path reads the same both ways — orient deterministically, with
+     * the alphabetically earlier endpoint last (so the spectrum runs
+     * from the technical cluster down to the lighthearted tags).
+     */
+    if (tags[order[n - 1]].localeCompare(tags[order[0]]) > 0) order.reverse();
 
     /*
      * The order is an open path laid over 0..300° (no wrap, so the two
