@@ -4377,23 +4377,9 @@ The wider Discord reaction probably accelerated the decision, but I don't think 
 
 I suspect the trees would have forced the same question again.
 
-The project had reached a point where the next major improvement was no longer hidden behind some technique I hadn't discovered yet.
+The project had reached a point where the mystery was gone. I knew how to proceed; I was simply becoming less interested in the destination.
 
-There was no FFT waiting to suddenly make the forest look alive.
-
-I understood what remained.
-
-It was simply a very large amount of work between me and a destination I was becoming less interested in reaching.
-
-That was a new kind of problem for me. When I don't know how to do something, curiosity is usually enough to keep me moving. The uncertainty itself becomes fuel. There is another paper to read, another experiment to try, another bug to find, another little moment where something which looked impossible in the morning works by midnight.
-
-Knowing how to proceed can be harder.
-
-Once the mystery disappears, the question is no longer *can I solve this?*
-
-It becomes *do I still care enough to do all of it?*
-
-For the first time within this project, my answer was becoming no.
+For the first time within this project, my answer to whether I still cared enough to do all of it was becoming no.
 
 ## Who Was This For?
 
@@ -4645,8 +4631,6 @@ I would find something difficult, lock onto it, learn whatever I needed, fail un
 
 The pattern goes much further back than software.
 
-I have played Geometry Dash for roughly thirteen years. Failing tens of thousands of times, occasionally even hundreds of thousands of times, at the same thing doesn't bother me very much if I still think the target is reachable. Somewhere along the way that became true of technical work as well.
-
 I did not know the answer. I was just willing to keep trying without one.
 
 That way of working has given me a great deal, and I don't want this reflection to turn it into something I am ashamed of.
@@ -4693,8 +4677,6 @@ That has given me breadth over many fields, and I am genuinely grateful for it.
 
 Still, I am also only twenty-one. If there was ever a period of my life where following curiosity in twenty different directions made sense, this is probably it.
 
-I would be more concerned if I were thirty-five and still incapable of doing anything once the interesting part was over.
-
 What I want to add next is not less curiosity.
 
 I don't particularly want to blunt the heat-seeking missile either. It has hit quite a few things I am glad I aimed it at.
@@ -4703,11 +4685,7 @@ I want to become better at deciding when to launch it, when to disengage, and ho
 
 I want the ability to hold onto something for years without needing it to consume the years around it.
 
-I don't know exactly what the balanced version of that looks like yet.
-
-If I did, this section would probably be a much cleaner lesson.
-
-I am already better at some of this than I used to be, but recognising a pattern is considerably easier than replacing one. There are still evenings where I know perfectly well I should stop and continue anyway. There are still weeks where something interesting quietly expands until everything else has to fit around it.
+I don’t know exactly what the balanced version of that looks like yet. Recognising the pattern is considerably easier than replacing it; there are still evenings where I know perfectly well I should stop and continue anyway.
 
 I think the difference is that I can see the shape of it now.
 
@@ -4717,23 +4695,11 @@ For the moment, that is probably enough.
 
 I think the insecurity around education changed something else too.
 
-For years I treated academia as one of the clearest symbols of the path I had failed to take. I still have a lot of respect for formal academics, and I find it genuinely unfortunate that I don't have an easy route into that world. I think I would enjoy being there.
+For years I treated academia as one of the clearest symbols of the path I had failed to take. I still have a great deal of respect for that world, and I genuinely wish the formal door were easier for me to open.
 
-What has changed is what I think gives that world its value.
+What has changed is what I value about it. Increasingly, it is the method underneath good academic work: formalising an idea, exposing assumptions, making claims precise enough to be attacked, and being willing to discover that something you believed was true is not.
 
-I don't think a title magically makes somebody's work important.
-
-If anything, I increasingly think about the relationship the other way around: the work is what gives the title weight.
-
-What I admire about good academic work is the method underneath it. Formalising an idea. Exposing assumptions. Making claims precise enough that somebody else can attack them. Writing things down in a way that can survive scrutiny. Being willing to discover that the thing you were convinced was true is, in fact, wrong.
-
-Some of those conventions only really started making sense to me after trying to reproduce the process myself.
-
-I wrote a little more about that in [The Hard Problem](../the-hard-problem/), so I won't turn a graphics entry into an essay about academia, but I think it belongs here because it is part of the same shift.
-
-I still wish the formal door were easier for me to open.
-
-I am simply becoming more comfortable with the idea that, where it isn't, the work can still be mine and it can still be held to the same kind of scrutiny.
+I wrote more about that in [The Hard Problem](https://journal.lucagoddijn.com/entries/the-hard-problem/), so I won't turn a graphics entry into an essay about academia. But it belongs here because I am becoming more comfortable with the idea that, where the formal route isn't available to me, the work can still be mine and can still be held to the same kind of scrutiny.
 
 ### Why I Am Writing Any of This Down
 
@@ -4762,8 +4728,6 @@ There is another, simpler reason too.
 At some point I started wondering: what is the point of being excited about something and learning from that, if it doesn't get shared?
 
 I've always struggled to find people who share the same kind of excitement for things that I do, and I'm incredibly grateful for the people I've met who do.
-
-So while the overwhelming majority of readers will probably never reach this point, I hope one or two curious souls do, and find something here worth taking with them.
 
 ## Something New
 
@@ -4817,13 +4781,9 @@ I want to find out whether I can work sustainably.
 
 If I make the thing I have in mind, it will probably take years. That means I cannot build it by disappearing into it for two weeks at a time and treating everything else in my life as an interruption.
 
-There will be periods where the work is exciting and periods where it is ordinary.
+There will be periods where the work is exciting and periods where it is ordinary. There will be systems I am fascinated by and hundreds of tasks which exist simply because games contain hundreds of tasks.
 
-There will be systems I am fascinated by and probably hundreds of tasks which exist purely because games contain hundreds of tasks.
-
-There will be times where the right thing to do is keep going.
-
-There will also be nights where the right thing to do is close Unreal and go do something else.
+Sometimes the right thing will be to keep going. Other nights it will be to close Unreal and do something else.
 
 That sounds very mundane written down, and for me, I think it might be the harder project.
 
@@ -4865,25 +4825,17 @@ Not in every possible way, and certainly not because the game itself is some pro
 
 That mattered, and still matters.
 
-I just don't need to keep coming back to it for that to remain true.
+I just don’t need to keep coming back to it for that to remain true.
 
 I think I am starting to see something similar in the way I learned to work.
 
-The curiosity, tenacity, and ability to keep pulling at something difficult until it finally makes sense have given me too much for me to treat them as mistakes.
-
-I don't want less of that curiosity, and I certainly don't want failure to become frightening again.
-
-I don't want to lose the part of myself which can look at something as ridiculous as an FFT ocean simulation on a random afternoon and confidently think, *sure, why not?*
+The curiosity, tenacity, and willingness to keep pulling at something difficult until it finally makes sense have given me far too much to treat them as mistakes. I don’t want to lose the part of myself which can look at something as ridiculous as an FFT ocean simulation on a random afternoon and confidently think, sure, why not?
 
 What I am trying to leave behind is the assumption that because a way of working has taken me somewhere valuable, every part of it therefore deserves to come with me unchanged.
 
-I think those two things are more similar than they looked at first.
+In that sense, the two things are more similar than they first appeared. Unturned gave me something valuable without requiring me to preserve the form it came in. The way I taught myself to work did too, and now I am trying to work out which parts belong in whatever comes next.
 
-Unturned gave me something valuable, and eventually I had to stop trying to preserve the form it came in.
-
-The way I taught myself to work gave me something valuable too, and now I am trying to work out which parts belong in whatever comes next.
-
-I don't think I have that answer neatly figured out.
+I don’t think I have that answer neatly figured out.
 
 I hope that I will read some of this in five years and realise I understood much less well than I thought I did.
 
@@ -4905,7 +4857,7 @@ And whatever comes after those will, hopefully, contain parts of this too.
 
 In the meantime, I want to work on the game alongside smaller projects focused on research, adventures, and learning new things.
 
-I hope that one day I'll have finished that game, given it a title, and filled this journal with a whole bunch of other new and interesting entries along the way.
+I hope that one day I’ll have finished that game, given it a title, and filled this journal with a whole bunch of other new and interesting entries along the way.
 
 Thank you.
 
