@@ -4631,6 +4631,8 @@ I would find something difficult, lock onto it, learn whatever I needed, fail un
 
 The pattern goes much further back than software.
 
+I have played Geometry Dash for roughly thirteen years. Failing tens of thousands of times, occasionally even hundreds of thousands of times, at the same thing doesn't bother me very much if I still think the target is reachable. Somewhere along the way that became true of technical work as well.
+
 I did not know the answer. I was just willing to keep trying without one.
 
 That way of working has given me a great deal, and I don't want this reflection to turn it into something I am ashamed of.
