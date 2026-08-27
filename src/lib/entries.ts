@@ -146,17 +146,25 @@ export function visibleStatus(entry: Entry): string | undefined {
 /**
  * Estimated reading time in whole minutes, computed from the entry's
  * markdown body at ~150 words per minute (dense, technical prose).
- * Code blocks, links, and markup are reduced to their readable text
- * before counting.
+ * Code blocks, math, tables, links, and markup are reduced to their
+ * readable text before counting.
  */
 export function readingTime(entry: Entry): number {
     const text = (entry.body ?? '')
         // fenced code blocks read as skimmed, not word-for-word
         .replace(/```[\s\S]*?```/g, ' ')
         .replace(/`[^`\n]*`/g, ' ')
+        // math blocks read as skimmed too, and LaTeX tokens aren't words
+        .replace(/\$\$[\s\S]*?\$\$/g, ' ')
+        .replace(/\$[^$\n]+\$/g, ' ')
+        // tables are scanned, not read line by line
+        .replace(/^[ \t]*\|.*$/gm, ' ')
         // keep link and image alt text, drop the URLs
         .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
-        .replace(/<[^>]+>/g, ' ');
+        .replace(/<[^>]+>/g, ' ')
+        // callout tags and structural markers (#, >, -, ---) aren't words
+        .replace(/\[!\w+\]/g, ' ')
+        .replace(/^[ \t]*(?:#{1,6}|>|[-*+]|(?:[-*_]\s*){3,})(?=\s|$)/gm, ' ');
     const words = text.split(/\s+/).filter(Boolean).length;
     const minutes = Math.max(1, Math.round(words / 150));
     // minutes ending in 1 or 9 read as false precision; snap to the ten
