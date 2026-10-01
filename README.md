@@ -25,6 +25,11 @@ draft: true
 written: august 2026           # when the entry was written
 project: march - august 2026   # when the project took place
 status: completed              # completed, abandoned, or ongoing
+# Optional picture shown beside the entry in lists (site-absolute path).
+# It is also the link preview when the entry is shared.
+thumbnail: /assets/entries/my-entry/cover.png
+# Optional: a different image for link previews only.
+ogImage: /assets/entries/my-entry/share.png
 ---
 ```
 

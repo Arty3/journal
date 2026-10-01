@@ -2,11 +2,17 @@
 import Base from '../../layouts/Base.astro';
 import EntryControls from '../../components/EntryControls.astro';
 import EntryList from '../../components/EntryList.astro';
-import { sortedEntries, tagCounts } from '../../lib/entries';
+import { readingTime, sortedEntries, tagCounts } from '../../lib/entries';
 import { allTagHues } from '../../lib/tagColors';
 
 const entries = await sortedEntries();
 const tags = tagCounts(entries);
+/* "8 entries, about 9 hours of reading total." */
+const totalHours = Math.round(entries.reduce((sum, entry) => sum + readingTime(entry), 0) / 60);
+const summary =
+    entries.length === 1
+        ? 'One entry.'
+        : `${entries.length} entries, about ${totalHours} hour${totalHours === 1 ? '' : 's'} of reading total.`;
 const tagHues = await allTagHues();
 /* red first, then around the wheel — ring neighbors stay adjacent */
 const sortedTags = [...tags.keys()].sort(
@@ -16,6 +22,7 @@ const sortedTags = [...tags.keys()].sort(
 
 <Base title="Entries — Luca's Journal" description="All journal entries, newest first.">
     <h1>Entries</h1>
+    {entries.length > 0 && <p class="lede">{summary}</p>}
     {
         entries.length > 0 && (
             <div class="controls">
@@ -93,6 +100,12 @@ const sortedTags = [...tags.keys()].sort(
 </script>
 
 <style>
+    .lede {
+        margin: -0.5rem 0 0;
+        color: var(--muted);
+        font-style: italic;
+    }
+
     /* sized by the filter row alone, so the tag cloud wraps at its edge */
     .controls {
         width: fit-content;
@@ -156,11 +169,5 @@ const sortedTags = [...tags.keys()].sort(
     .no-matches {
         margin: 2rem 0 0;
         color: var(--muted);
-    }
-
-    /* the page ends with the entry list — pull the footer's divider up
-       to match the 1.5rem rhythm the list uses between its own items */
-    :global(footer) {
-        margin-top: 1.5rem;
     }
 </style>

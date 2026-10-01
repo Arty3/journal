@@ -2,7 +2,8 @@
 import 'katex/dist/katex.min.css';
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { metaLine, readingTimeLabel, sortedEntries } from '../../lib/entries';
+import { readingTimeLabel, sortedEntries } from '../../lib/entries';
+import { formatDate, formatSpan, parseSpan } from '../../lib/dates';
 import { allTagHues } from '../../lib/tagColors';
 
 export async function getStaticPaths() {
@@ -14,24 +15,79 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
+/*
+ * The contents list follows the entry's sections and subsections. The
+ * heading text arrives with the '#' that rehype-autolink-headings
+ * appends for the hover anchor, which has no place in a list.
+ */
+const toc = headings
+    .filter((heading) => heading.depth === 2 || heading.depth === 3)
+    .map((heading) => ({ ...heading, text: heading.text.replace(/\s*#\s*$/, '') }));
 const tagHues = await allTagHues();
 /* same spectrum order as the tag cloud */
 const orderedTags = [...entry.data.tags].sort(
     (a, b) => (tagHues.get(a) ?? 0) - (tagHues.get(b) ?? 0),
 );
+
+const status = entry.data.status;
+const statusLabel = status ? status.charAt(0).toUpperCase() + status.slice(1) : undefined;
+const projectSpan = parseSpan(entry.data.project);
+const projectLabel = projectSpan
+    ? projectSpan.end === 'present'
+        ? `Started ${formatSpan({ start: projectSpan.start })}`
+        : `Developed ${formatSpan(projectSpan)}`
+    : undefined;
+const writtenLabel = formatDate(entry.data.written);
 ---
 
 <Base
     title={`${entry.data.title} - Luca's Journal - ${readingTimeLabel(entry)}`}
     description={entry.data.description}
-    image={entry.data.ogImage}
+    image={entry.data.ogImage ?? entry.data.thumbnail}
 >
+    <div class="progress" aria-hidden="true"></div>
     <article>
         <header>
+            <p class="eyebrow">
+                <a href="/entries/">Entries</a>
+                <span aria-hidden="true">/</span>
+                {projectLabel && <span>{projectLabel}</span>}
+            </p>
             <h1>{entry.data.title}</h1>
             <p class="description">{entry.data.description}</p>
-            {metaLine(entry) && <p class="meta">{metaLine(entry)}</p>}
+            <p class="meta">
+                {
+                    status && (
+                        <>
+                            <span class={`status status-${status}`}>{statusLabel}</span>
+                            <span class="sep" aria-hidden="true">·</span>
+                        </>
+                    )
+                }
+                {
+                    writtenLabel && (
+                        <>
+                            <span>Written {writtenLabel}</span>
+                            <span class="sep" aria-hidden="true">·</span>
+                        </>
+                    )
+                }
+                <span class="reading-time">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        aria-hidden="true"
+                    >
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 7v5l3 2" />
+                    </svg>
+                    {readingTimeLabel(entry)}
+                </span>
+            </p>
             {
                 entry.data.tags.length > 0 && (
                     <ul class="tags">
@@ -48,24 +104,30 @@ const orderedTags = [...entry.data.tags].sort(
                     </ul>
                 )
             }
-            <span class="reading-time">
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    aria-hidden="true"
-                >
-                    <circle cx="12" cy="12" r="9" />
-                    <path d="M12 7v5l3 2" />
-                </svg>
-                {readingTimeLabel(entry)}
-            </span>
             <p class="back">
                 <a href="/entries/">&larr; All entries</a>
             </p>
         </header>
+        {
+            toc.length > 2 && (
+                <details class="toc">
+                    <summary>
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                            <path d="M3 4.5h10M3 8h10M3 11.5h6" />
+                        </svg>
+                        Contents
+                        <span class="count">{toc.filter((h) => h.depth === 2).length} sections</span>
+                    </summary>
+                    <ol>
+                        {toc.map((heading) => (
+                            <li class={`depth-${heading.depth}`}>
+                                <a href={`#${heading.slug}`}>{heading.text}</a>
+                            </li>
+                        ))}
+                    </ol>
+                </details>
+            )
+        }
         <Content />
         <p class="back back-bottom">
             <a href="/entries/">&larr; All entries</a>
@@ -77,6 +139,12 @@ const orderedTags = [...entry.data.tags].sort(
 </Base>
 
 <script>
+    /*
+     * Mermaid diagrams, rendered on the client. Each one is rendered
+     * explicitly with its own id: mermaid's batch runner derives ids
+     * from a millisecond clock, so diagrams rendered in the same tick
+     * collide and land in each other's containers.
+     */
     const blocks = document.querySelectorAll('pre > code.language-mermaid');
 
     if (blocks.length > 0) {
@@ -90,16 +158,29 @@ const orderedTags = [...entry.data.tags].sort(
                 "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
         });
 
+        const containers: HTMLPreElement[] = [];
         for (const code of blocks) {
             const pre = code.parentElement;
             if (!pre) continue;
             const container = document.createElement('pre');
             container.className = 'mermaid';
-            container.textContent = code.textContent ?? '';
+            container.dataset.source = code.textContent ?? '';
+            container.textContent = container.dataset.source;
             pre.replaceWith(container);
+            containers.push(container);
         }
 
-        await mermaid.run({ querySelector: 'pre.mermaid' });
+        for (const [index, container] of containers.entries()) {
+            const source = container.dataset.source ?? '';
+            try {
+                const { svg, bindFunctions } = await mermaid.render(`diagram-${index}`, source);
+                container.innerHTML = svg;
+                bindFunctions?.(container);
+            } catch (error) {
+                console.error('mermaid:', error);
+                container.textContent = source;
+            }
+        }
     }
 </script>
 
@@ -183,11 +264,76 @@ const orderedTags = [...entry.data.tags].sort(
     }
 </script>
 
+<script>
+    /* the hairline at the top fills as the article scrolls by */
+    const article = document.querySelector<HTMLElement>('article');
+    const bar = document.querySelector<HTMLElement>('.progress');
+    let queued = false;
+    const update = () => {
+        queued = false;
+        if (!article || !bar) return;
+        const start = article.offsetTop;
+        const span = article.offsetHeight - window.innerHeight;
+        const progress = span > 0 ? Math.min(1, Math.max(0, (window.scrollY - start) / span)) : 1;
+        bar.style.transform = `scaleX(${progress})`;
+    };
+    const schedule = () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(update);
+    };
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    update();
+
+    /* the contents box folds away once a section is picked */
+    const toc = document.querySelector<HTMLDetailsElement>('.toc');
+    toc?.addEventListener('click', (event) => {
+        if ((event.target as HTMLElement).closest('a')) toc.open = false;
+    });
+</script>
+
 <style>
+    .progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 20;
+        height: 2px;
+        background: var(--accent);
+        transform-origin: left;
+        transform: scaleX(0);
+    }
+
     article > header {
         margin-bottom: 2.5rem;
         padding-bottom: 2.5rem;
         border-bottom: 1px solid var(--border);
+    }
+
+    /* where the entry sits in the journal, above the title */
+    .eyebrow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin: 0 0 1rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+
+    .eyebrow a {
+        color: inherit;
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+
+    .eyebrow a:hover,
+    .eyebrow a:focus-visible {
+        color: var(--accent);
     }
 
     article > header h1 {
@@ -201,17 +347,29 @@ const orderedTags = [...entry.data.tags].sort(
     }
 
     .meta {
-        color: var(--muted);
-        font-size: 0.9rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.55rem;
         margin: 1.75rem 0 0;
+        font-family: var(--font-ui);
+        font-size: 0.9rem;
+        color: var(--muted);
     }
 
-    .reading-time {
-        margin-top: 0.75rem;
+    .meta .reading-time {
+        margin-top: 0;
     }
 
+    .sep {
+        color: var(--muted);
+        user-select: none;
+    }
+
+    /* the UI face, like the other utility links; both top and bottom */
     .back {
         margin: 1.5rem 0 0;
+        font-family: var(--font-ui);
         font-weight: 700;
         font-size: 1.1rem;
     }
@@ -244,6 +402,80 @@ const orderedTags = [...entry.data.tags].sort(
         transform: scaleX(1);
     }
 
+    /* ---- contents ---------------------------------------------------- */
+    .toc {
+        margin: 0 0 2.5rem;
+        padding: 0.55rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--tag-bg);
+    }
+
+    .toc summary {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        list-style: none;
+        font-family: var(--font-ui);
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--fg);
+    }
+
+    .toc summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .toc summary svg {
+        width: 1rem;
+        height: 1rem;
+        color: var(--muted);
+    }
+
+    .toc .count {
+        margin-left: auto;
+        color: var(--muted);
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+
+    .toc ol {
+        list-style: none;
+        margin: 0.6rem 0 0.3rem;
+        padding: 0.5rem 0 0;
+        border-top: 1px solid var(--border);
+    }
+
+    .toc li {
+        margin: 0;
+    }
+
+    .toc a {
+        display: block;
+        padding: 0.25rem 0;
+        text-decoration: none;
+        color: var(--fg);
+        font-size: 1rem;
+        line-height: 1.4;
+        transition: color 0.15s ease;
+    }
+
+    .toc .depth-3 a {
+        padding-left: 1.1rem;
+        font-size: 0.92rem;
+        color: var(--muted);
+    }
+
+    .toc a:hover,
+    .toc a:focus-visible {
+        color: var(--accent);
+    }
+
+    /* ---- sections ---------------------------------------------------- */
     /* JS-created, so unscoped; the wrapper anchors the corner button */
     article :global(.code-block) {
         position: relative;

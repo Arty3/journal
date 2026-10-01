@@ -12,6 +12,7 @@ draft: false
 written: august 2026
 project: 2025
 status: completed
+thumbnail: /assets/entries/stack-obfuscator/backtrace-thumb.png
 ---
 
 > [!IMPORTANT]

@@ -1,13 +1,15 @@
 ---
 import {
-    metaLine,
     projectBounds,
     readingTime,
     readingTimeLabel,
     writtenSortKey,
     type Entry,
 } from '../lib/entries';
+import { formatDate, MONTHS, parseSpan, type DatePoint } from '../lib/dates';
 import { allTagHues } from '../lib/tagColors';
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 
 interface Props {
     entries: Entry[];
@@ -15,69 +17,211 @@ interface Props {
 
 const { entries } = Astro.props;
 const tagHues = await allTagHues();
+
+/*
+ * Thumbnails are full-size files (they double as share images and
+ * open full screen from the list), far larger than the 15rem box they
+ * sit in. Browsers downscale such images coarsely, so the list gets
+ * list-sized copies rendered at build time instead; the original is
+ * kept on the element for the lightbox.
+ */
+const originals = import.meta.glob<{ default: ImageMetadata | string }>(
+    '/public/assets/entries/**/*.{png,jpg,jpeg,webp,avif,gif}',
+);
+
+async function listThumbnail(path: string) {
+    const load = originals[`/public${path}`];
+    const source = load ? (await load()).default : undefined;
+    if (!source || typeof source === 'string') return { src: path, srcset: undefined };
+    const image = await getImage({
+        src: source,
+        width: 960,
+        height: 600,
+        fit: 'cover',
+        widths: [480, 960],
+        format: 'webp',
+        quality: 85,
+    });
+    return { src: image.src, srcset: image.srcSet.attribute };
+}
+
+const thumbnails = new Map(
+    await Promise.all(
+        entries
+            .filter((entry) => entry.data.thumbnail)
+            .map(async (entry) => [entry.id, await listThumbnail(entry.data.thumbnail!)] as const),
+    ),
+);
 /* same spectrum order as the tag cloud */
 const hueOrder = (tags: string[]) =>
     [...tags].sort((a, b) => (tagHues.get(a) ?? 0) - (tagHues.get(b) ?? 0));
+
+/* "Mar", or the whole name ("March") when asked */
+const mon = (point: DatePoint, full = false) => {
+    if (point.month === undefined) return '';
+    const name = MONTHS[point.month];
+    return (full ? name : name.slice(0, 3)).replace(/^./, (c) => c.toUpperCase());
+};
+
+/*
+ * The date column: the project's start year, with the months (or the
+ * end year) beneath it: "Mar – Aug", "2024 – 2025", "Oct – present".
+ * A single month is written out in full ("July"); ranges stay short.
+ */
+function when(entry: Entry): { year: string; detail: string } {
+    const span = parseSpan(entry.data.project) ?? parseSpan(entry.data.written);
+    if (!span) return { year: String(entry.created.getFullYear()), detail: '' };
+    const { start, end } = span;
+    const year = String(start.year);
+    if (!end) return { year, detail: mon(start, true) };
+    if (end === 'present') return { year, detail: `${mon(start)} – present`.trim() };
+    if (end.year === start.year) {
+        return { year, detail: mon(start) && mon(end) ? `${mon(start)} – ${mon(end)}` : '' };
+    }
+    const from = mon(start) ? `${mon(start)} ${start.year}` : String(start.year);
+    const to = mon(end) ? `${mon(end)} ${end.year}` : String(end.year);
+    return { year, detail: `${from} – ${to}` };
+}
+
+const statusLabel = (status: string | undefined) =>
+    status ? status.charAt(0).toUpperCase() + status.slice(1) : undefined;
 ---
 
 <ul class="entry-list">
     {
-        entries.map((entry, index) => (
-            <li
-                data-order={index}
-                data-project={projectBounds(entry).start}
-                data-project-end={projectBounds(entry).end}
-                data-written={writtenSortKey(entry)}
-                data-reading={readingTime(entry)}
-                data-tags={entry.data.tags.join('|')}
-            >
-                <h2>
-                    <a href={`/entries/${entry.id}/`}>{entry.data.title} &rarr;</a>
-                </h2>
-                <p>{entry.data.description}</p>
-                {metaLine(entry) && <p class="meta">{metaLine(entry)}</p>}
-                {entry.data.tags.length > 0 && (
-                    <ul class="tags">
-                        {hueOrder(entry.data.tags).map((tag) => (
-                            <li>
-                                <a
-                                    href={`/tags/${tag}/`}
-                                    style={`--tag-hue: ${tagHues.get(tag)}`}
+        entries.map((entry, index) => {
+            const date = when(entry);
+            const written = formatDate(entry.data.written);
+            const status = entry.data.status;
+            return (
+                <li
+                    data-order={index}
+                    data-project={projectBounds(entry).start}
+                    data-project-end={projectBounds(entry).end}
+                    data-written={writtenSortKey(entry)}
+                    data-reading={readingTime(entry)}
+                    data-tags={entry.data.tags.join('|')}
+                >
+                    <div class="when">
+                        <span class="year">{date.year}</span>
+                        {date.detail && <span class="detail">{date.detail}</span>}
+                        {status && (
+                            <span class={`status status-${status}`}>{statusLabel(status)}</span>
+                        )}
+                    </div>
+                    <div class="card">
+                        <h2>
+                            <a href={`/entries/${entry.id}/`}>{entry.data.title} &rarr;</a>
+                        </h2>
+                        <p>{entry.data.description}</p>
+                        <p class="meta">
+                            {written && (
+                                <>
+                                    <span>Written {written}</span>
+                                    <span class="sep" aria-hidden="true">·</span>
+                                </>
+                            )}
+                            <span class="reading-time">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    aria-hidden="true"
                                 >
-                                    {tag}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                )}
-                <span class="reading-time">
-                    <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        aria-hidden="true"
-                    >
-                        <circle cx="12" cy="12" r="9" />
-                        <path d="M12 7v5l3 2" />
-                    </svg>
-                    {readingTimeLabel(entry)}
-                </span>
-            </li>
-        ))
+                                    <circle cx="12" cy="12" r="9" />
+                                    <path d="M12 7v5l3 2" />
+                                </svg>
+                                {readingTimeLabel(entry)}
+                            </span>
+                        </p>
+                        {entry.data.tags.length > 0 && (
+                            <ul class="tags">
+                                {hueOrder(entry.data.tags).map((tag) => (
+                                    <li>
+                                        <a
+                                            href={`/tags/${tag}/`}
+                                            style={`--tag-hue: ${tagHues.get(tag)}`}
+                                        >
+                                            {tag}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                    {entry.data.thumbnail && (
+                        <img
+                            class="thumb"
+                            src={thumbnails.get(entry.id)?.src ?? entry.data.thumbnail}
+                            srcset={thumbnails.get(entry.id)?.srcset}
+                            sizes="(max-width: 640px) 100vw, 15rem"
+                            width="240"
+                            height="150"
+                            data-full={entry.data.thumbnail}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                            tabindex="0"
+                            role="button"
+                            aria-label={`View the ${entry.data.title} thumbnail full screen`}
+                        />
+                    )}
+                </li>
+            );
+        })
     }
 </ul>
+<dialog class="lightbox" aria-label="Full screen image">
+    <img src="" alt="" />
+</dialog>
+
+<script>
+    /* same lightbox as the entry pages: click a thumbnail to open it
+       full screen; click anywhere or press Esc to close */
+    const lightbox = document.querySelector<HTMLDialogElement>('.lightbox');
+    const lightboxImg = lightbox?.querySelector('img');
+
+    if (lightbox && lightboxImg) {
+        for (const img of document.querySelectorAll<HTMLImageElement>('.entry-list .thumb')) {
+            const open = () => {
+                /* the full-size original, not the list-sized copy */
+                lightboxImg.src = img.dataset.full ?? img.currentSrc;
+                lightbox.showModal();
+            };
+            img.addEventListener('click', open);
+            img.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    open();
+                }
+            });
+        }
+
+        lightbox.addEventListener('click', () => lightbox.close());
+    }
+</script>
 
 <style>
+    /* the list opens with a rule of its own; each entry then owns only the
+       rule beneath it, so hovering any entry moves exactly one line */
     .entry-list {
         list-style: none;
         padding: 0;
         margin: 0;
+        border-top: 1px solid var(--border);
     }
 
     .entry-list > li {
         position: relative;
+        display: grid;
+        /* a fixed date column (wide enough for "abandoned") keeps every
+           title on the same vertical line; the text column takes the
+           rest, with the thumbnail (when there is one) at the end */
+        grid-template-columns: 6.5rem minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 0 1rem;
         padding: 1.5rem 0;
         border-bottom: 1px solid var(--border);
         transition: transform 0.2s ease;
@@ -95,18 +239,36 @@ const hueOrder = (tags: string[]) =>
         outline: none;
     }
 
-    .entry-list > li:first-child {
-        padding-top: 0;
+    /* when the project ran, and how it ended, beside the entry */
+    .when {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        padding-top: 0.45rem;
+        font-family: var(--font-ui);
+        color: var(--muted);
     }
 
-    /* the footer's top border already closes off the list */
-    .entry-list > li:last-child,
-    .entry-list > li.last-visible {
-        border-bottom: none;
-        padding-bottom: 0;
+    .when .year {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--fg);
+    }
+
+    .when .detail {
+        font-size: 0.8rem;
+    }
+
+    .when .status {
+        margin-top: 0.45rem;
+    }
+
+    .card {
+        min-width: 0;
     }
 
     .entry-list h2 {
+        font-family: var(--font-ui);
         font-size: 1.6rem;
         margin: 0;
     }
@@ -143,17 +305,30 @@ const hueOrder = (tags: string[]) =>
         background-size: 100% 2px;
     }
 
-    .entry-list p {
+    .entry-list .card > p:not(.meta) {
         margin: 0.4rem 0 0;
         color: var(--muted);
         font-size: 1.05rem;
         font-style: italic;
     }
 
-    .entry-list .meta {
+    .entry-list .card > .meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0.4rem 0 0;
+        font-family: var(--font-ui);
         font-size: 0.85rem;
-        margin-top: 0.3rem;
-        font-style: normal;
+        color: var(--muted);
+    }
+
+    .entry-list .meta .reading-time {
+        margin-top: 0;
+    }
+
+    .sep {
+        user-select: none;
     }
 
     /* tags sit above the stretched link so they stay clickable */
@@ -163,14 +338,91 @@ const hueOrder = (tags: string[]) =>
         width: fit-content;
     }
 
+    /* sits above the stretched link so it opens the lightbox, not the entry */
+    .thumb {
+        position: relative;
+        z-index: 1;
+        width: 15rem;
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+        align-self: center;
+        margin-left: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        cursor: zoom-in;
+        transition: transform 0.2s ease;
+    }
+
+    .thumb:hover,
+    .thumb:focus-visible {
+        transform: scale(1.03);
+    }
+
+    .lightbox {
+        padding: 0;
+        border: none;
+        background: transparent;
+        max-width: 92vw;
+        max-height: 92vh;
+        cursor: zoom-out;
+        outline: none;
+    }
+
+    .lightbox::backdrop {
+        background: rgba(0, 0, 0, 0.85);
+    }
+
+    .lightbox img {
+        display: block;
+        width: 92vw;
+        height: 92vh;
+        object-fit: contain;
+    }
+
     /*
-     * The stretched title link sits over the card, so the time never
-     * gets hovered directly — brighten it on card hover instead.
+     * The stretched title link sits over the card, so nothing in it
+     * gets hovered directly — brighten the description, the meta line
+     * (written date and time) and the status on card hover instead.
      */
     .entry-list > li:hover :global(.reading-time),
-    .entry-list > li:hover > p:not(.meta),
+    .entry-list > li:hover .card > p,
+    .entry-list > li:hover .when :global(.status),
     .entry-list > li:has(h2 a:focus-visible) :global(.reading-time),
-    .entry-list > li:has(h2 a:focus-visible) > p:not(.meta) {
+    .entry-list > li:has(h2 a:focus-visible) .card > p,
+    .entry-list > li:has(h2 a:focus-visible) .when :global(.status) {
         color: var(--fg);
+    }
+
+    /* the status dot gets the ongoing-style glow while the card is hovered */
+    .entry-list > li:hover .when :global(.status)::before,
+    .entry-list > li:has(h2 a:focus-visible) .when :global(.status)::before {
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-color) 25%, transparent);
+    }
+
+    @media (max-width: 640px) {
+        .entry-list > li {
+            grid-template-columns: 1fr;
+            gap: 0.4rem;
+        }
+
+        .when {
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 0.6rem;
+            padding-top: 0;
+        }
+
+        .when .status {
+            margin-top: 0;
+        }
+
+        /* the picture leads the card on a phone */
+        .thumb {
+            order: -1;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            margin: 0 0 0.5rem;
+        }
     }
 </style>

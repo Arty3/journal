@@ -22,13 +22,34 @@ const { entries } = Astro.props;
 </Base>
 
 <style>
+    /* the same back link as on entry pages: UI face, animated underline */
     .back {
         margin-bottom: 2rem;
+        font-family: var(--font-ui);
+        font-weight: 700;
+        font-size: 1.1rem;
     }
 
-    /* the page ends with the entry list — pull the footer's divider up
-       to match the 1.5rem rhythm the list uses between its own items */
-    :global(footer) {
-        margin-top: 1.5rem;
+    .back a {
+        position: relative;
+        text-decoration: none;
+    }
+
+    .back a::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -0.2rem;
+        width: 100%;
+        height: 2px;
+        background: var(--accent);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.2s ease;
+    }
+
+    .back a:hover::after,
+    .back a:focus-visible::after {
+        transform: scaleX(1);
     }
 </style>

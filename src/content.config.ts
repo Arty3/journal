@@ -33,10 +33,17 @@ const entries = defineCollection({
         status: z.enum(STATUSES).optional(),
         /**
          * Social-preview image for this entry, as a site-absolute path
-         * (e.g. "/assets/entries/foo/cover.png"). Falls back to the
-         * site-wide /og.png.
+         * (e.g. "/assets/entries/foo/cover.png"). Only needed when the
+         * link preview should differ from the thumbnail: without it the
+         * thumbnail is used, and without either the site-wide /og.png.
          */
         ogImage: z.string().optional(),
+        /**
+         * Picture shown beside the entry in lists and, unless ogImage
+         * overrides it, in link previews when the entry is shared. A
+         * site-absolute path (e.g. "/assets/entries/foo/cover.png").
+         */
+        thumbnail: z.string().optional(),
     }),
 });
 

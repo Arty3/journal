@@ -12,6 +12,8 @@ draft: false
 written: september 2026
 project: march - august 2026
 status: completed
+ogImage: /assets/entries/lg-npu/full-std.png
+thumbnail: /assets/entries/lg-npu/full-std.png
 ---
 
 ## An Ordinary Bike Ride

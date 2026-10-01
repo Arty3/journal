@@ -7,7 +7,6 @@ tags:
   - rtl
   - physics
   - radiation
-  - career
 draft: false
 written: september 2026
 project: october 2026 - present

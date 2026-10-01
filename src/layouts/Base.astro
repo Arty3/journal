@@ -1,4 +1,12 @@
 ---
+/* IBM Plex Serif, a screen-first text serif, for all prose: the weights the
+   site uses (regular, semibold, bold) and the italics it sets in them */
+import '@fontsource/ibm-plex-serif/400.css';
+import '@fontsource/ibm-plex-serif/400-italic.css';
+import '@fontsource/ibm-plex-serif/600.css';
+import '@fontsource/ibm-plex-serif/700.css';
+import '@fontsource/ibm-plex-serif/700-italic.css';
+
 interface Props {
     title: string;
     description?: string;
@@ -47,8 +55,35 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
         <a class="skip-link" href="#main-content">Skip to content</a>
         <header>
             <nav>
-                <a href="/" class="site-title">Home</a>
-                <a href="/entries/" class="nav-link">Entries</a>
+                <a href="/" class="site-title" aria-label="Luca's Journal, home">
+                    <!-- the mark, same drawing as /favicon.svg: a ring-bound notebook
+                         with a bookmark ribbon -->
+                    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+                        <rect width="64" height="64" rx="14" fill="#2c5aa0" />
+                        <rect x="17" y="11" width="32" height="42" rx="4" fill="#fdfdfc" />
+                        <g fill="#2c5aa0" stroke="#fdfdfc" stroke-width="2">
+                            <circle cx="17" cy="19" r="3" />
+                            <circle cx="17" cy="32" r="3" />
+                            <circle cx="17" cy="45" r="3" />
+                        </g>
+                        <g fill="#2c5aa0">
+                            <rect x="26" y="25" width="16" height="3" rx="1.5" />
+                            <rect x="26" y="33" width="16" height="3" rx="1.5" />
+                            <rect x="26" y="41" width="10" height="3" rx="1.5" />
+                        </g>
+                        <polygon
+                            points="40,11 46,11 46,22 43,19 40,22"
+                            fill="#2c5aa0"
+                            opacity="0.7"
+                        />
+                    </svg>
+                    <span>Luca's Journal</span>
+                </a>
+                <div class="nav-pages">
+                    <a href="/entries/" class="nav-link">Entries</a>
+                    <a href="/#subscribe" class="nav-link">Subscribe</a>
+                    <a href="/#what-this-is" class="nav-link">About</a>
+                </div>
                 <div class="nav-links">
                     <a
                         href="mailto:luca.goddijn@gmail.com"
@@ -122,6 +157,11 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
         --red: #f85149;
         --border: #2c2c32;
         --tag-bg: #24242a;
+        /* prose reads in a serif; controls, labels and code keep the
+           original sans and mono stacks */
+        --font-serif: 'IBM Plex Serif', Georgia, 'Times New Roman', serif;
+        --font-ui: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+        --font-mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
         color-scheme: dark;
     }
 
@@ -154,7 +194,7 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
         max-width: min(100%, clamp(60rem, 30rem + 60vw, 100rem));
         background: var(--bg);
         color: var(--fg);
-        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+        font-family: var(--font-serif);
         font-size: 1.2rem;
         line-height: 1.7;
         -webkit-font-smoothing: antialiased;
@@ -179,7 +219,46 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
         text-decoration: none;
     }
 
-    .site-title::after,
+    /* the page links take the UI face; only the journal's name stays serif */
+    .nav-link {
+        font-family: var(--font-ui);
+    }
+
+    /* the journal's mark and name: plain until hovered, then the same
+       underline and accent as the page links */
+    .site-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        /* a step up from the page links so the name reads as the masthead */
+        font-size: 1.75rem;
+        color: var(--fg);
+        transition: color 0.15s ease;
+    }
+
+    .site-title .mark {
+        width: 1.9rem;
+        height: 1.9rem;
+        flex: none;
+        transition: transform 0.2s ease;
+    }
+
+    .site-title span {
+        position: relative;
+    }
+
+    .site-title:hover,
+    .site-title:focus-visible {
+        color: var(--accent);
+    }
+
+    /* the mark tilts a little along with the underline */
+    .site-title:hover .mark,
+    .site-title:focus-visible .mark {
+        transform: rotate(-6deg);
+    }
+
+    .site-title span::after,
     .nav-link::after {
         content: '';
         position: absolute;
@@ -193,18 +272,25 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
         transition: transform 0.2s ease;
     }
 
-    .site-title:hover::after,
+    .site-title:hover span::after,
+    .site-title:focus-visible span::after,
     .nav-link:hover::after,
-    .site-title:focus-visible::after,
     .nav-link:focus-visible::after {
         transform: scaleX(1);
+    }
+
+    /* the page links and the icons sit together on the right */
+    .nav-pages {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin-left: auto;
     }
 
     .nav-links {
         display: flex;
         align-items: center;
         gap: 1.1rem;
-        margin-left: auto;
     }
 
     .icon-link {
@@ -220,8 +306,8 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
     }
 
     .icon-link svg {
-        width: 1.55rem;
-        height: 1.55rem;
+        width: 1.75rem;
+        height: 1.75rem;
     }
 
     main a {
@@ -275,7 +361,7 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
     }
 
     code {
-        font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+        font-family: var(--font-mono);
         font-size: 0.95em;
         background: var(--tag-bg);
         padding: 0.1em 0.35em;
@@ -421,15 +507,16 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
 
     .tags a {
         display: inline-block;
+        font-family: var(--font-ui);
         /*
          * --tag-hue is computed at build time from tag-word semantics
          * (src/lib/tagColors.ts): related tags get neighboring hues.
-         * The saturation is kept low so the pills stay understated;
-         * hover and selection stay in the tag's own hue, only more
-         * vivid.
+         * Each pill is a tinted fill with an outline in its own hue;
+         * hover and selection stay in that hue, only more vivid.
          */
-        background: hsl(var(--tag-hue, 220) 22% 21%);
-        color: hsl(var(--tag-hue, 220) 35% 74%);
+        background: hsl(var(--tag-hue, 220) 30% 22% / 0.55);
+        color: hsl(var(--tag-hue, 220) 45% 78%);
+        border: 1px solid hsl(var(--tag-hue, 220) 30% 38% / 0.8);
         border-radius: 999px;
         padding: 0.1rem 0.65rem;
         font-size: 0.8rem;
@@ -437,20 +524,68 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
         transition:
             background-color 0.15s ease,
             color 0.15s ease,
-            box-shadow 0.15s ease;
+            border-color 0.15s ease;
     }
 
     .tags a:hover,
     .tags a:focus-visible {
-        background: hsl(var(--tag-hue, 220) 60% 32%);
-        color: hsl(var(--tag-hue, 220) 95% 82%);
+        background: hsl(var(--tag-hue, 220) 60% 40%);
+        color: hsl(var(--tag-hue, 220) 100% 94%);
+        border-color: transparent;
     }
 
     /* selected as filter (entries page) or the current tag page */
     .tags a.active,
     .tags a[aria-current='page'] {
-        background: hsl(var(--tag-hue, 220) 80% 38%);
-        color: hsl(var(--tag-hue, 220) 100% 96%);
+        background: hsl(var(--tag-hue, 220) 60% 40%);
+        color: hsl(var(--tag-hue, 220) 100% 94%);
+        border-color: transparent;
+    }
+
+    /* project status: a coloured dot and a small label */
+    .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-family: var(--font-ui);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+        white-space: nowrap;
+    }
+
+    .status {
+        --status-color: var(--muted);
+    }
+
+    .status::before {
+        content: '';
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        background: var(--status-color);
+        flex: none;
+        transition: box-shadow 0.15s ease;
+    }
+
+    .status-completed {
+        --status-color: var(--green);
+    }
+
+    .status-abandoned {
+        --status-color: #e0877a;
+    }
+
+    .status-ongoing {
+        --status-color: var(--accent);
+    }
+
+    /* ongoing glows all the time; the others only glow on card hover in
+       entry lists (see EntryList), never on the entry page itself */
+    .status-ongoing::before {
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-color) 25%, transparent);
     }
 
     /* plain muted text, no pill chrome */
@@ -459,9 +594,9 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
         align-items: center;
         gap: 0.35rem;
         margin-top: 0.5rem;
+        font-family: var(--font-ui);
         color: var(--muted);
         font-size: 0.85rem;
-        font-weight: 700;
         white-space: nowrap;
         transition: color 0.15s ease;
     }
@@ -469,6 +604,11 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
     .reading-time svg {
         width: 0.95em;
         height: 0.95em;
+    }
+
+    /* the sort and filter strip keeps its original sans face */
+    .entry-controls {
+        font-family: var(--font-ui);
     }
 
     footer {
@@ -556,6 +696,22 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
             font-size: 1.25rem;
         }
 
+        .site-title {
+            font-size: 1.5rem;
+        }
+
+        /* the page links drop to their own row under the name and icons */
+        .nav-pages {
+            order: 3;
+            width: 100%;
+            gap: 1.25rem;
+            margin-left: 0;
+        }
+
+        .nav-links {
+            margin-left: auto;
+        }
+
         h1 {
             font-size: 2rem;
         }
@@ -615,7 +771,8 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
         .back,
         .heading-anchor,
         .code-block button,
-        .lightbox {
+        .lightbox,
+        .progress {
             display: none !important;
         }
 

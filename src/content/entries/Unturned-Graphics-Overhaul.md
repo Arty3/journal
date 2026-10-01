@@ -13,6 +13,7 @@ written: august 2026
 project: july 2026
 status: abandoned
 ogImage: /assets/entries/unturned-graphics-overhaul/water-25.png
+thumbnail: /assets/entries/unturned-graphics-overhaul/water-25.png
 ---
 
 > [!IMPORTANT]

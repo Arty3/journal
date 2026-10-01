@@ -9,6 +9,7 @@ draft: false
 written: august 2026
 project: march 2026
 status: completed
+thumbnail: /assets/entries/the-hard-problem/cows-thumb.jpg
 ---
 
 ## A Lovely Trip

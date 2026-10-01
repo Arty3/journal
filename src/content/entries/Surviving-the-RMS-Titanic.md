@@ -10,6 +10,7 @@ draft: false
 written: august 2026
 project: 2024
 status: completed
+thumbnail: /assets/entries/surviving-the-rms-titanic/math-thumb.png
 ---
 
 ## Preliminaries
