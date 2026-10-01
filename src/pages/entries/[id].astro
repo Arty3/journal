@@ -2,7 +2,7 @@
 import 'katex/dist/katex.min.css';
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { readingTimeLabel, sortedEntries, visibleStatus } from '../../lib/entries';
+import { metaLine, readingTimeLabel, sortedEntries } from '../../lib/entries';
 import { allTagHues } from '../../lib/tagColors';
 
 export async function getStaticPaths() {
@@ -31,20 +31,7 @@ const orderedTags = [...entry.data.tags].sort(
         <header>
             <h1>{entry.data.title}</h1>
             <p class="description">{entry.data.description}</p>
-            {
-                (entry.data.project || entry.data.written || visibleStatus(entry)) && (
-                    <p class="meta">
-                        {[
-                            entry.data.project &&
-                                `Developed during ${entry.data.project}`,
-                            entry.data.written && `Written ${entry.data.written}`,
-                            visibleStatus(entry),
-                        ]
-                            .filter(Boolean)
-                            .join(' · ')}
-                    </p>
-                )
-            }
+            {metaLine(entry) && <p class="meta">{metaLine(entry)}</p>}
             {
                 entry.data.tags.length > 0 && (
                     <ul class="tags">

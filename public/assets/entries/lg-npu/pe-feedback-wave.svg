@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1130 634" width="1130" height="634" font-family='"Courier New", monospace'>
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="130" y="30" font-size="16" font-weight="bold" fill="#111">conv_pe / conv_accum feedback path, cycles 100..114 of conv_tests.vcd</text>
+<rect x="194" y="60" width="64" height="424" fill="#c0392b" opacity="0.08"/>
+<line x1="194" y1="60" x2="194" y2="484" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="258" y="60" width="64" height="424" fill="#d68910" opacity="0.08"/>
+<line x1="258" y1="60" x2="258" y2="484" stroke="#d68910" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="322" y="60" width="64" height="424" fill="#1f618d" opacity="0.08"/>
+<line x1="322" y1="60" x2="322" y2="484" stroke="#1f618d" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="162.0" y="52" font-size="12" fill="#666" text-anchor="middle">100</text>
+<text x="226.0" y="52" font-size="12" fill="#666" text-anchor="middle">101</text>
+<text x="290.0" y="52" font-size="12" fill="#666" text-anchor="middle">102</text>
+<text x="354.0" y="52" font-size="12" fill="#666" text-anchor="middle">103</text>
+<text x="418.0" y="52" font-size="12" fill="#666" text-anchor="middle">104</text>
+<text x="482.0" y="52" font-size="12" fill="#666" text-anchor="middle">105</text>
+<text x="546.0" y="52" font-size="12" fill="#666" text-anchor="middle">106</text>
+<text x="610.0" y="52" font-size="12" fill="#666" text-anchor="middle">107</text>
+<text x="674.0" y="52" font-size="12" fill="#666" text-anchor="middle">108</text>
+<text x="738.0" y="52" font-size="12" fill="#666" text-anchor="middle">109</text>
+<text x="802.0" y="52" font-size="12" fill="#666" text-anchor="middle">110</text>
+<text x="866.0" y="52" font-size="12" fill="#666" text-anchor="middle">111</text>
+<text x="930.0" y="52" font-size="12" fill="#666" text-anchor="middle">112</text>
+<text x="994.0" y="52" font-size="12" fill="#666" text-anchor="middle">113</text>
+<text x="1058.0" y="52" font-size="12" fill="#666" text-anchor="middle">114</text>
+<text x="118" y="98.0" font-size="14" fill="#111" text-anchor="end">clk</text>
+<path d="M130,83 L162.0,83 L162.0,103 L194,103 L194,83 L226.0,83 L226.0,103 L258,103 L258,83 L290.0,83 L290.0,103 L322,103 L322,83 L354.0,83 L354.0,103 L386,103 L386,83 L418.0,83 L418.0,103 L450,103 L450,83 L482.0,83 L482.0,103 L514,103 L514,83 L546.0,83 L546.0,103 L578,103 L578,83 L610.0,83 L610.0,103 L642,103 L642,83 L674.0,83 L674.0,103 L706,103 L706,83 L738.0,83 L738.0,103 L770,103 L770,83 L802.0,83 L802.0,103 L834,103 L834,83 L866.0,83 L866.0,103 L898,103 L898,83 L930.0,83 L930.0,103 L962,103 L962,83 L994.0,83 L994.0,103 L1026,103 L1026,83 L1058.0,83 L1058.0,103 L1090,103" fill="none" stroke="#111" stroke-width="1.6"/>
+<text x="118" y="144.0" font-size="14" fill="#111" text-anchor="end">valid_in</text>
+<path d="M130,149 L194,149 L194,129 L258,129 L258,149 L322,149 L322,149 L386,149 L386,149 L450,149 L450,149 L514,149 L514,129 L578,129 L578,149 L642,149 L642,149 L706,149 L706,149 L770,149 L770,149 L834,149 L834,129 L898,129 L898,149 L962,149 L962,149 L1026,149 L1026,149 L1090,149" fill="none" stroke="#111" stroke-width="1.6"/>
+<text x="118" y="190.0" font-size="14" fill="#111" text-anchor="end">ready_out</text>
+<path d="M130,175 L194,175 L194,175 L258,175 L258,175 L322,175 L322,175 L386,175 L386,175 L450,175 L450,175 L514,175 L514,175 L578,175 L578,175 L642,175 L642,175 L706,175 L706,175 L770,175 L770,175 L834,175 L834,175 L898,175 L898,175 L962,175 L962,175 L1026,175 L1026,175 L1090,175" fill="none" stroke="#111" stroke-width="1.6"/>
+<text x="118" y="236.0" font-size="14" fill="#111" text-anchor="end">act_in</text>
+<path d="M130,231.0 L135,221 L445,221 L450,231.0 L445,241 L135,241 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="290.0" y="236.0" font-size="13" fill="#111" text-anchor="middle">1</text>
+<path d="M450,231.0 L455,221 L765,221 L770,231.0 L765,241 L455,241 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="610.0" y="236.0" font-size="13" fill="#111" text-anchor="middle">2</text>
+<path d="M770,231.0 L775,221 L1085,221 L1090,231.0 L1085,241 L775,241 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="930.0" y="236.0" font-size="13" fill="#111" text-anchor="middle">3</text>
+<text x="118" y="282.0" font-size="14" fill="#111" text-anchor="end">wt_in</text>
+<path d="M130,277.0 L135,267 L1085,267 L1090,277.0 L1085,287 L135,287 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="610.0" y="282.0" font-size="13" fill="#111" text-anchor="middle">1</text>
+<text x="118" y="328.0" font-size="14" fill="#111" text-anchor="end">acc_in</text>
+<path d="M130,323.0 L135,313 L317,313 L322,323.0 L317,333 L135,333 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="226.0" y="328.0" font-size="13" fill="#111" text-anchor="middle">0</text>
+<path d="M322,323.0 L327,313 L637,313 L642,323.0 L637,333 L327,333 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="482.0" y="328.0" font-size="13" fill="#111" text-anchor="middle">1</text>
+<path d="M642,323.0 L647,313 L957,313 L962,323.0 L957,333 L647,333 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="802.0" y="328.0" font-size="13" fill="#111" text-anchor="middle">3</text>
+<path d="M962,323.0 L967,313 L1085,313 L1090,323.0 L1085,333 L967,333 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="1026.0" y="328.0" font-size="13" fill="#111" text-anchor="middle">6</text>
+<text x="118" y="374.0" font-size="14" fill="#111" text-anchor="end">result_r</text>
+<path d="M130,369.0 L135,359 L253,359 L258,369.0 L253,379 L135,379 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="194.0" y="374.0" font-size="13" fill="#111" text-anchor="middle">0</text>
+<path d="M258,369.0 L263,359 L573,359 L578,369.0 L573,379 L263,379 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="418.0" y="374.0" font-size="13" fill="#111" text-anchor="middle">1</text>
+<path d="M578,369.0 L583,359 L893,359 L898,369.0 L893,379 L583,379 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="738.0" y="374.0" font-size="13" fill="#111" text-anchor="middle">3</text>
+<path d="M898,369.0 L903,359 L1085,359 L1090,369.0 L1085,379 L903,379 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="994.0" y="374.0" font-size="13" fill="#111" text-anchor="middle">6</text>
+<text x="118" y="420.0" font-size="14" fill="#111" text-anchor="end">valid_out</text>
+<path d="M130,425 L194,425 L194,425 L258,425 L258,405 L322,405 L322,425 L386,425 L386,425 L450,425 L450,425 L514,425 L514,425 L578,425 L578,405 L642,405 L642,425 L706,425 L706,425 L770,425 L770,425 L834,425 L834,425 L898,425 L898,405 L962,405 L962,425 L1026,425 L1026,425 L1090,425" fill="none" stroke="#111" stroke-width="1.6"/>
+<text x="118" y="466.0" font-size="14" fill="#111" text-anchor="end">acc_r</text>
+<path d="M130,461.0 L135,451 L317,451 L322,461.0 L317,471 L135,471 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="226.0" y="466.0" font-size="13" fill="#111" text-anchor="middle">0</text>
+<path d="M322,461.0 L327,451 L637,451 L642,461.0 L637,471 L327,471 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="482.0" y="466.0" font-size="13" fill="#111" text-anchor="middle">1</text>
+<path d="M642,461.0 L647,451 L957,451 L962,461.0 L957,471 L647,471 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="802.0" y="466.0" font-size="13" fill="#111" text-anchor="middle">3</text>
+<path d="M962,461.0 L967,451 L1085,451 L1090,461.0 L1085,471 L967,471 Z" fill="#f4f6f7" stroke="#111" stroke-width="1.4"/>
+<text x="1026.0" y="466.0" font-size="13" fill="#111" text-anchor="middle">6</text>
+<rect x="130" y="513" width="14" height="14" fill="#c0392b" opacity="0.5"/>
+<text x="152" y="524" font-size="13" fill="#111">cycle 101: PE accepts x, w, acc_in</text>
+<rect x="130" y="537" width="14" height="14" fill="#d68910" opacity="0.5"/>
+<text x="152" y="548" font-size="13" fill="#111">cycle 102: result_r updated</text>
+<rect x="130" y="561" width="14" height="14" fill="#1f618d" opacity="0.5"/>
+<text x="152" y="572" font-size="13" fill="#111">cycle 103: acc_r updated, now visible on acc_in</text>
+</svg>

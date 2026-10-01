@@ -6,9 +6,9 @@ tags:
   - paper
   - cows
 draft: false
-written: Aug 2026
-project: March 2026
-status: Concluded
+written: august 2026
+project: march 2026
+status: completed
 ---
 
 ## A Lovely Trip

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 872" width="820" height="872" font-family='"Courier New", monospace'>
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="20" y="34" font-size="18" font-weight="bold" fill="#111">npu_shell MMIO map (20-bit address space, not to scale)</text>
+<rect x="150" y="80" width="300" height="150" fill="#d7bde2" stroke="#111" stroke-width="1.5"/>
+<text x="140" y="94" font-size="13" fill="#111" text-anchor="end">0x0_0000</text>
+<text x="300.0" y="153.0" font-size="14" font-weight="bold" fill="#111" text-anchor="middle">Registers</text>
+<text x="300.0" y="171.0" font-size="12" fill="#333" text-anchor="middle">256 B</text>
+<path d="M150,238 l12,-6 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-6" fill="none" stroke="#999" stroke-width="1.2"/>
+<text x="300.0" y="268" font-size="11" fill="#888" text-anchor="middle">unmapped, reads as 0</text>
+<rect x="150" y="278" width="300" height="70" fill="#f9e79f" stroke="#111" stroke-width="1.5"/>
+<text x="140" y="292" font-size="13" fill="#111" text-anchor="end">0x0_1000</text>
+<text x="300.0" y="311.0" font-size="14" font-weight="bold" fill="#111" text-anchor="middle">Command queue window</text>
+<text x="300.0" y="329.0" font-size="12" fill="#333" text-anchor="middle">64 B (16 words)</text>
+<path d="M150,356 l12,-6 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-6" fill="none" stroke="#999" stroke-width="1.2"/>
+<text x="300.0" y="386" font-size="11" fill="#888" text-anchor="middle">unmapped, reads as 0</text>
+<rect x="150" y="396" width="300" height="90" fill="#cfe2f3" stroke="#111" stroke-width="1.5"/>
+<text x="140" y="410" font-size="13" fill="#111" text-anchor="end">0x1_0000</text>
+<text x="300.0" y="439.0" font-size="14" font-weight="bold" fill="#111" text-anchor="middle">Weight buffer window</text>
+<text x="300.0" y="457.0" font-size="12" fill="#333" text-anchor="middle">4 KB, INT8</text>
+<path d="M150,494 l12,-6 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-6" fill="none" stroke="#999" stroke-width="1.2"/>
+<text x="300.0" y="524" font-size="11" fill="#888" text-anchor="middle">unmapped, reads as 0</text>
+<rect x="150" y="534" width="300" height="110" fill="#d9ead3" stroke="#111" stroke-width="1.5"/>
+<text x="140" y="548" font-size="13" fill="#111" text-anchor="end">0x2_0000</text>
+<text x="300.0" y="587.0" font-size="14" font-weight="bold" fill="#111" text-anchor="middle">Activation buffer window</text>
+<text x="300.0" y="605.0" font-size="12" fill="#333" text-anchor="middle">8 KB, INT8</text>
+<path d="M150,652 l12,-6 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-12 l12,12 l12,-6" fill="none" stroke="#999" stroke-width="1.2"/>
+<text x="300.0" y="682" font-size="11" fill="#888" text-anchor="middle">unmapped, reads as 0</text>
+<rect x="150" y="692" width="300" height="130" fill="#fce5cd" stroke="#111" stroke-width="1.5"/>
+<text x="140" y="706" font-size="13" fill="#111" text-anchor="end">0x3_0000</text>
+<text x="300.0" y="755.0" font-size="14" font-weight="bold" fill="#111" text-anchor="middle">Partial-sum buffer window</text>
+<text x="300.0" y="773.0" font-size="12" fill="#333" text-anchor="middle">16 KB, INT32</text>
+<text x="140" y="826" font-size="13" fill="#111" text-anchor="end">0xF_FFFF</text>
+<rect x="520" y="60" width="270" height="376" fill="#fbfbfb" stroke="#555" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="530" y="82" font-size="13" font-weight="bold" fill="#111">Register block (offset from 0x0_0000)</text>
+<path d="M450,80 L520,60 M450,230 L520,436" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="780" y="110" font-size="10" fill="#888" text-anchor="end">control / status</text>
+<text x="534" y="110" font-size="12" fill="#111">0x00</text>
+<text x="584" y="110" font-size="12" fill="#111">CTRL</text>
+<text x="534" y="132" font-size="12" fill="#111">0x04</text>
+<text x="584" y="132" font-size="12" fill="#111">STATUS</text>
+<text x="534" y="154" font-size="12" fill="#111">0x08</text>
+<text x="584" y="154" font-size="12" fill="#111">DOORBELL</text>
+<text x="534" y="176" font-size="12" fill="#111">0x0C</text>
+<text x="584" y="176" font-size="12" fill="#111">IRQ_STATUS</text>
+<text x="534" y="198" font-size="12" fill="#111">0x10</text>
+<text x="584" y="198" font-size="12" fill="#111">IRQ_ENABLE</text>
+<text x="534" y="220" font-size="12" fill="#111">0x14</text>
+<text x="584" y="220" font-size="12" fill="#111">IRQ_CLEAR</text>
+<text x="534" y="242" font-size="12" fill="#111">0x18</text>
+<text x="584" y="242" font-size="12" fill="#111">FEATURE_ID</text>
+<text x="780" y="264" font-size="10" fill="#888" text-anchor="end">perf counters</text>
+<text x="534" y="264" font-size="12" fill="#111">0x20</text>
+<text x="584" y="264" font-size="12" fill="#111">PERF_CYCLES</text>
+<text x="534" y="286" font-size="12" fill="#111">0x24</text>
+<text x="584" y="286" font-size="12" fill="#111">PERF_ACTIVE</text>
+<text x="534" y="308" font-size="12" fill="#111">0x28</text>
+<text x="584" y="308" font-size="12" fill="#111">PERF_STALL</text>
+<text x="780" y="330" font-size="10" fill="#888" text-anchor="end">DMA</text>
+<text x="534" y="330" font-size="12" fill="#111">0x30</text>
+<text x="584" y="330" font-size="12" fill="#111">DMA_EXT_ADDR</text>
+<text x="534" y="352" font-size="12" fill="#111">0x34</text>
+<text x="584" y="352" font-size="12" fill="#111">DMA_LOC_ADDR</text>
+<text x="534" y="374" font-size="12" fill="#111">0x38</text>
+<text x="584" y="374" font-size="12" fill="#111">DMA_LEN</text>
+<text x="534" y="396" font-size="12" fill="#111">0x3C</text>
+<text x="584" y="396" font-size="12" fill="#111">DMA_CTRL</text>
+<text x="534" y="418" font-size="12" fill="#111">0x40</text>
+<text x="584" y="418" font-size="12" fill="#111">DMA_STATUS</text>
+</svg>

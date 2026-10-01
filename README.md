@@ -22,18 +22,40 @@ tags:
 # If true, hides the draft from public view.
 draft: true
 # Optional metadata, shown on the entry page and in the list.
-written: Aug 2026        # when the entry was written
-project: 2023-2024       # when the project took place ("2025-present" works too)
-status: Abandoned        # e.g. Abandoned, Ongoing, Completed
+written: august 2026           # when the entry was written
+project: march - august 2026   # when the project took place
+status: completed              # completed, abandoned, or ongoing
 ---
 ```
 
-The list at `/entries/` is sorted by project date, oldest first. The sort
-key is the first year found in `project` (a month name before the year
-refines it, e.g. "Aug 2023-2024"). Entries without a `project` fall back
-to their `written` date, and finally to the last git commit that touched
-the file. (The deploy workflow checks out full history for this; locally,
-uncommitted files fall back to filesystem mtime.)
+Dates are written in lowercase with full month names, and the build
+rejects anything else. A date is a year, optionally preceded by a month;
+a hyphen between two dates makes a range, and the range may end in
+`present`:
+
+```yaml
+project: 2024
+project: march 2026
+project: 2024 - 2025
+project: march - august 2026
+project: august 2024 - march 2025
+project: october 2026 - present
+```
+
+On the page they render capitalized, with an en dash for ranges
+("Developed March – August 2026"); a range ending in `present` shows
+as "Started October 2026" alongside the status. `written` takes a single date, not a range.
+`status` is lowercase too; only `ongoing` is shown on the page, the
+others are kept as internal metadata.
+
+The list at `/entries/` is sorted by project date, latest first. The sort
+key is when the project *started*, so a project begun later ranks as more
+recent however long it ran. The "Project" year filter matches every year
+a range touches (a `2024 - 2025` project shows under both years, and
+`present` runs to the build's current year). Entries without a `project`
+fall back to their `written` date, and finally to the git commit that
+added the file. (The deploy workflow checks out full history for this;
+locally, uncommitted files fall back to filesystem times.)
 
 The landing page copy lives directly in `src/pages/index.astro`.
 

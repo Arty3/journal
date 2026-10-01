@@ -1,9 +1,9 @@
 ---
 import {
-    projectSortKey,
+    metaLine,
+    projectBounds,
     readingTime,
     readingTimeLabel,
-    visibleStatus,
     writtenSortKey,
     type Entry,
 } from '../lib/entries';
@@ -25,7 +25,8 @@ const hueOrder = (tags: string[]) =>
         entries.map((entry, index) => (
             <li
                 data-order={index}
-                data-project={projectSortKey(entry)}
+                data-project={projectBounds(entry).start}
+                data-project-end={projectBounds(entry).end}
                 data-written={writtenSortKey(entry)}
                 data-reading={readingTime(entry)}
                 data-tags={entry.data.tags.join('|')}
@@ -34,18 +35,7 @@ const hueOrder = (tags: string[]) =>
                     <a href={`/entries/${entry.id}/`}>{entry.data.title} &rarr;</a>
                 </h2>
                 <p>{entry.data.description}</p>
-                {(entry.data.project || entry.data.written || visibleStatus(entry)) && (
-                    <p class="meta">
-                        {[
-                            entry.data.project &&
-                                `Developed during ${entry.data.project}`,
-                            entry.data.written && `Written ${entry.data.written}`,
-                            visibleStatus(entry),
-                        ]
-                            .filter(Boolean)
-                            .join(' · ')}
-                    </p>
-                )}
+                {metaLine(entry) && <p class="meta">{metaLine(entry)}</p>}
                 {entry.data.tags.length > 0 && (
                     <ul class="tags">
                         {hueOrder(entry.data.tags).map((tag) => (

@@ -5,9 +5,9 @@ tags:
   - c
   - fun
 draft: false
-written: Aug 2026
+written: august 2026
 project: 2024
-status: Concluded
+status: completed
 ---
 
 # Hello, World!

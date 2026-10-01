@@ -1,5 +1,5 @@
 ---
-import { projectSortKey, writtenSortKey, type Entry } from '../lib/entries';
+import { projectBounds, writtenSortKey, type Entry } from '../lib/entries';
 
 interface Props {
     entries: Entry[];
@@ -7,11 +7,19 @@ interface Props {
 
 const { entries } = Astro.props;
 
-const yearsOf = (keys: number[]) =>
-    [...new Set(keys.map((key) => Math.floor(key / 12)))].sort((a, b) => b - a);
+const yearOf = (key: number) => Math.floor(key / 12);
+const newestFirst = (years: Iterable<number>) => [...new Set(years)].sort((a, b) => b - a);
 
-const writtenYears = yearsOf(entries.map(writtenSortKey));
-const projectYears = yearsOf(entries.map(projectSortKey));
+const writtenYears = newestFirst(entries.map(writtenSortKey).map(yearOf));
+/* a project spanning years is offered under each year it touched */
+const projectYears = newestFirst(
+    entries.flatMap((entry) => {
+        const { start, end } = projectBounds(entry);
+        const years = [];
+        for (let year = yearOf(start); year <= yearOf(end); year++) years.push(year);
+        return years;
+    }),
+);
 ---
 
 <form class="entry-controls">
@@ -94,6 +102,9 @@ const projectYears = yearsOf(entries.map(projectSortKey));
 
         const value = (item: HTMLElement, key: string) => Number(item.dataset[key] ?? 0);
         const yearOf = (item: HTMLElement, key: string) => Math.floor(value(item, key) / 12);
+        /* the project ran through the year: started by its end, finished no earlier */
+        const projectTouches = (item: HTMLElement, year: number) =>
+            yearOf(item, 'project') <= year && yearOf(item, 'projectEnd') >= year;
 
         const activeTagLinks = () => [
             ...document.querySelectorAll<HTMLAnchorElement>('.tag-cloud a.active'),
@@ -182,7 +193,7 @@ const projectYears = yearsOf(entries.map(projectSortKey));
                     reading >= min &&
                     reading <= max &&
                     (writtenYear === null || yearOf(item, 'written') === writtenYear) &&
-                    (projectYear === null || yearOf(item, 'project') === projectYear);
+                    (projectYear === null || projectTouches(item, projectYear));
                 if (passesFilters) pool.push(itemTags);
                 const visible =
                     passesFilters && activeTags.every((tag) => itemTags.includes(tag));

@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { statSync } from 'node:fs';
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { formatDate, formatSpan, parseSpan, pointIndex, spanBounds } from './dates';
 
 /**
  * When an entry was last touched, taken from git history so no dates need
@@ -57,40 +58,27 @@ export type Entry = CollectionEntry<'entries'> & {
     updated: Date;
 };
 
-const MONTHS = [
-    'jan', 'feb', 'mar', 'apr', 'may', 'jun',
-    'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
-];
-
-/**
- * Extracts a sortable month index from a loosely written date like
- * "Aug 2026", "2023-2024", or "2025-present" — the first year found,
- * refined by a month name when one directly precedes it. Returns null
- * when no year is present.
- */
-function approxDate(text: string | undefined): number | null {
-    if (!text) return null;
-    const match = text.match(/(?:([A-Za-z]{3,9})\.?\s+)?(\d{4})/);
-    if (!match) return null;
-    const month = MONTHS.findIndex((m) =>
-        match[1]?.toLowerCase().startsWith(m),
-    );
-    return Number(match[2]) * 12 + Math.max(month, 0);
-}
-
 const monthOf = (date: Date) => date.getFullYear() * 12 + date.getMonth();
 
 /**
- * Month index (year * 12 + month) an entry's project sorts under: the
- * `project` frontmatter, falling back to the `written` date and then
- * the git creation month.
+ * The month indices (year * 12 + month) an entry's project covers,
+ * from the `project` frontmatter. Without one, the `written` date
+ * stands in, and failing that the git creation month. A single date
+ * covers just its own month; "present" runs to the current month.
+ */
+export function projectBounds(entry: Entry): { start: number; end: number } {
+    const span = parseSpan(entry.data.project) ?? parseSpan(entry.data.written);
+    if (span) return spanBounds(span);
+    const created = monthOf(entry.created);
+    return { start: created, end: created };
+}
+
+/**
+ * Month index an entry's project sorts under: when it started. A
+ * project begun later ranks as more recent, however long it runs.
  */
 export function projectSortKey(entry: Entry): number {
-    return (
-        approxDate(entry.data.project) ??
-        approxDate(entry.data.written) ??
-        monthOf(entry.created)
-    );
+    return projectBounds(entry).start;
 }
 
 /**
@@ -98,7 +86,8 @@ export function projectSortKey(entry: Entry): number {
  * falling back to the git creation month.
  */
 export function writtenSortKey(entry: Entry): number {
-    return approxDate(entry.data.written) ?? monthOf(entry.created);
+    const span = parseSpan(entry.data.written);
+    return span ? pointIndex(span.start) : monthOf(entry.created);
 }
 
 /**
@@ -122,25 +111,55 @@ export async function sortedEntries(): Promise<Entry[]> {
 }
 
 /**
- * The most recently written entry, judged by the `written` date
- * (git timestamp as fallback), ties broken by last update.
+ * The most recently written entry, judged by the `written` date (git
+ * creation month as fallback). Entries written the same month tie-break
+ * on the newest project, then on git creation time — never on the last
+ * edit, which would let a typo fix displace the actual latest entry.
  */
 export function latestWritten(entries: Entry[]): Entry | undefined {
-    const key = (entry: Entry) =>
-        approxDate(entry.data.written) ??
-        (entry.updated.getFullYear() * 12 + entry.updated.getMonth());
     return [...entries].sort(
-        (a, b) => key(b) - key(a) || b.updated.getTime() - a.updated.getTime(),
+        (a, b) =>
+            writtenSortKey(b) - writtenSortKey(a) ||
+            projectSortKey(b) - projectSortKey(a) ||
+            b.created.getTime() - a.created.getTime(),
     )[0];
 }
 
 /**
- * The status to display for an entry: only "Ongoing" is shown;
- * any other status stays internal metadata.
+ * The status to display for an entry: only "ongoing" is shown
+ * (capitalized); any other status stays internal metadata.
  */
 export function visibleStatus(entry: Entry): string | undefined {
-    const status = entry.data.status;
-    return status?.toLowerCase() === 'ongoing' ? status : undefined;
+    return entry.data.status === 'ongoing' ? 'Ongoing' : undefined;
+}
+
+/**
+ * The project dates for display: "Developed March – August 2026", or
+ * "Started October 2026" for a project still running — the status
+ * says it's ongoing, so a "– Present" would only repeat that.
+ */
+function projectLabel(entry: Entry): string | undefined {
+    const span = parseSpan(entry.data.project);
+    if (!span) return undefined;
+    return span.end === 'present'
+        ? `Started ${formatSpan({ start: span.start })}`
+        : `Developed ${formatSpan(span)}`;
+}
+
+/**
+ * The metadata line under an entry's description — "Developed
+ * March – August 2026 · Written September 2026 · Ongoing" — with the
+ * frontmatter dates rendered in display form. Undefined when the entry
+ * has nothing to show.
+ */
+export function metaLine(entry: Entry): string | undefined {
+    const written = formatDate(entry.data.written);
+    const parts = [
+        projectLabel(entry),
+        written && `Written ${written}`,
+        visibleStatus(entry),
+    ].filter(Boolean);
+    return parts.length > 0 ? parts.join(' · ') : undefined;
 }
 
 /**

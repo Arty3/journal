@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6180 2870" width="1236" height="574" font-family='"Courier New", monospace'>
+<defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="60" height="60" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="60" stroke="#c9c9c9" stroke-width="10"/></pattern></defs>
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="420.0" y="150" font-size="150" font-weight="bold" fill="#111">npu_shell floorplan (sky130A)</text>
+<text x="420.0" y="300" font-size="115" fill="#444">14 x sky130_sram_2kbyte_1rw1r_32x512_8, each 683.1 x 416.54 um, 100 um column gaps</text>
+<rect x="420.0" y="420" width="120" height="120" fill="#cfe2f3" stroke="#111" stroke-width="8"/>
+<text x="580.0" y="520" font-size="115" fill="#111">Weight (2 x 2 KB)</text>
+<rect x="2400.0" y="420" width="120" height="120" fill="#d9ead3" stroke="#111" stroke-width="8"/>
+<text x="2560.0" y="520" font-size="115" fill="#111">Activation (4 x 2 KB)</text>
+<rect x="4300.0" y="420" width="120" height="120" fill="#fce5cd" stroke="#111" stroke-width="8"/>
+<text x="4460.0" y="520" font-size="115" fill="#111">Partial sum (8 x 2 KB)</text>
+<rect x="420.0" y="580" width="120" height="120" fill="url(#hatch)" stroke="#111" stroke-width="8"/>
+<text x="580.0" y="680" font-size="115" fill="#111">standard-cell logic band</text>
+<line x1="2400.0" y1="640" x2="2520.0" y2="640" stroke="#c0392b" stroke-width="40"/>
+<text x="2560.0" y="680" font-size="115" fill="#111">port 0 edge (faces the logic band)</text>
+<rect x="420.0" y="760.0" width="5600.0" height="1750.0" fill="#fafafa" stroke="#111" stroke-width="12"/>
+<rect x="420.0" y="1290.0" width="5600.0" height="703.46" fill="url(#hatch)" stroke="none"/>
+<text x="3220.0" y="1681.73" font-size="120" fill="#333" text-anchor="middle">standard-cell logic band, 703 um tall</text>
+<rect x="520.0" y="1993.46" width="683.1" height="416.54" fill="#cfe2f3" stroke="#111" stroke-width="10"/>
+<text x="861.55" y="2241.73" font-size="120" font-weight="bold" fill="#111" text-anchor="middle">wt[0]</text>
+<line x1="560.0" y1="1993.46" x2="1163.1" y2="1993.46" stroke="#c0392b" stroke-width="40"/>
+<rect x="1303.1" y="1993.46" width="683.1" height="416.54" fill="#cfe2f3" stroke="#111" stroke-width="10"/>
+<text x="1644.65" y="2241.73" font-size="120" font-weight="bold" fill="#111" text-anchor="middle">wt[1]</text>
+<line x1="1343.1" y1="1993.46" x2="1946.2" y2="1993.46" stroke="#c0392b" stroke-width="40"/>
+<rect x="2086.2" y="1993.46" width="683.1" height="416.54" fill="#d9ead3" stroke="#111" stroke-width="10"/>
+<text x="2427.75" y="2241.73" font-size="120" font-weight="bold" fill="#111" text-anchor="middle">act[0]</text>
+<line x1="2126.2" y1="1993.46" x2="2729.3" y2="1993.46" stroke="#c0392b" stroke-width="40"/>
+<rect x="2869.3" y="1993.46" width="683.1" height="416.54" fill="#d9ead3" stroke="#111" stroke-width="10"/>
+<text x="3210.8500000000004" y="2241.73" font-size="120" font-weight="bold" fill="#111" text-anchor="middle">act[1]</text>
+<line x1="2909.3" y1="1993.46" x2="3512.4" y2="1993.46" stroke="#c0392b" stroke-width="40"/>
+<rect x="3652.4" y="1993.46" width="683.1" height="416.54" fill="#d9ead3" stroke="#111" stroke-width="10"/>
+<text x="3993.9500000000003" y="2241.73" font-size="120" font-weight="bold" fill="#111" text-anchor="middle">act[2]</text>
+<line x1="3692.4" y1="1993.46" x2="4295.5" y2="1993.46" stroke="#c0392b" stroke-width="40"/>
+<rect x="4435.5" y="1993.46" width="683.1" height="416.54" fill="#d9ead3" stroke="#111" stroke-width="10"/>
+<text x="4777.05" y="2241.73" font-size="120" font-weight="bold" fill="#111" text-anchor="middle">act[3]</text>
+<line x1="4475.5" y1="1993.46" x2="5078.6" y2="1993.46" stroke="#c0392b" stroke-width="40"/>
+<rect x="5218.6" y="1993.46" width="683.1" height="416.54" fill="#fce5cd" stroke="#111" stroke-width="10"/>
+<text x="5560.150000000001" y="2241.73" font-size="120" font-weight="bold" fill="#111" text-anchor="middle">psum[0]</text>
+<line x1="5258.6" y1="1993.46" x2="5861.700000000001" y2="1993.46" stroke="#c0392b" stroke-width="40"/>
+<rect x="520.0" y="873.46" width="683.1" height="416.54" fill="#fce5cd" stroke="#111" stroke-width="10"/>
+<text x="861.55" y="1121.73" font-size="120" font-weight="bold" fill="#111" text-anchor="middle">psum[1]</text>
+<line x1="560.0" y1="1290.0" x2="1163.1" y2="1290.0" stroke="#c0392b" stroke-width="40"/>
+<rect x="1303.1" y="873.46" width="683.1" height="416.54" fill="#fce5cd" stroke="#111" stroke-width="10"/>
+<text x="1644.65" y="1121.73" font-size="120" font-weight="bold" fill="#111" text-anchor="middle">psum[2]</text>
+<line x1="1343.1" y1="1290.0" x2="1946.2" y2="1290.0" stroke="#c0392b" stroke-width="40"/>
+<rect x="2086.2" y="873.46" width="683.1" height="416.54" fill="#fce5cd" stroke="#111" stroke-width="10"/>
+<text x="2427.75" y="1121.73" font-size="120" font-weight="bold" fill="#111" text-anchor="middle">psum[3]</text>
+<line x1="2126.2" y1="1290.0" x2="2729.3" y2="1290.0" stroke="#c0392b" stroke-width="40"/>
+<rect x="2869.3" y="873.46" width="683.1" height="416.54" fill="#fce5cd" stroke="#111" stroke-width="10"/>
+<text x="3210.8500000000004" y="1121.73" font-size="120" font-weight="bold" fill="#111" text-anchor="middle">psum[4]</text>
+<line x1="2909.3" y1="1290.0" x2="3512.4" y2="1290.0" stroke="#c0392b" stroke-width="40"/>
+<rect x="3652.4" y="873.46" width="683.1" height="416.54" fill="#fce5cd" stroke="#111" stroke-width="10"/>
+<text x="3993.9500000000003" y="1121.73" font-size="120" font-weight="bold" fill="#111" text-anchor="middle">psum[5]</text>
+<line x1="3692.4" y1="1290.0" x2="4295.5" y2="1290.0" stroke="#c0392b" stroke-width="40"/>
+<rect x="4435.5" y="873.46" width="683.1" height="416.54" fill="#fce5cd" stroke="#111" stroke-width="10"/>
+<text x="4777.05" y="1121.73" font-size="120" font-weight="bold" fill="#111" text-anchor="middle">psum[6]</text>
+<line x1="4475.5" y1="1290.0" x2="5078.6" y2="1290.0" stroke="#c0392b" stroke-width="40"/>
+<rect x="5218.6" y="873.46" width="683.1" height="416.54" fill="#fce5cd" stroke="#111" stroke-width="10"/>
+<text x="5560.150000000001" y="1121.73" font-size="120" font-weight="bold" fill="#111" text-anchor="middle">psum[7]</text>
+<line x1="5258.6" y1="1290.0" x2="5861.700000000001" y2="1290.0" stroke="#c0392b" stroke-width="40"/>
+<line x1="420.0" y1="2650.0" x2="6020.0" y2="2650.0" stroke="#111" stroke-width="8"/>
+<line x1="420.0" y1="2600.0" x2="420.0" y2="2700.0" stroke="#111" stroke-width="8"/>
+<line x1="6020.0" y1="2600.0" x2="6020.0" y2="2700.0" stroke="#111" stroke-width="8"/>
+<text x="3220.0" y="2800.0" font-size="120" fill="#111" text-anchor="middle">5600 um</text>
+<line x1="260.0" y1="760.0" x2="260.0" y2="2510.0" stroke="#111" stroke-width="8"/>
+<line x1="210.0" y1="760.0" x2="310.0" y2="760.0" stroke="#111" stroke-width="8"/>
+<line x1="210.0" y1="2510.0" x2="310.0" y2="2510.0" stroke="#111" stroke-width="8"/>
+<text x="180.0" y="1635.0" font-size="120" fill="#111" text-anchor="middle" transform="rotate(-90 180.0 1635.0)">1750 um</text>
+<line x1="520.0" y1="2650.0" x2="1203.1" y2="2650.0" stroke="#111" stroke-width="8"/>
+<line x1="520.0" y1="2600.0" x2="520.0" y2="2700.0" stroke="#111" stroke-width="8"/>
+<line x1="1203.1" y1="2600.0" x2="1203.1" y2="2700.0" stroke="#111" stroke-width="8"/>
+<text x="861.55" y="2800.0" font-size="120" fill="#111" text-anchor="middle"></text>
+<text x="861.55" y="2800.0" font-size="105" fill="#111" text-anchor="middle">683.1</text>
+</svg>

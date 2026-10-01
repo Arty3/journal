@@ -9,9 +9,9 @@ tags:
 - physics
 - math
 draft: false
-written: Aug 2026
-project: July 2026
-status: Abandoned
+written: august 2026
+project: july 2026
+status: abandoned
 ogImage: /assets/entries/unturned-graphics-overhaul/water-25.png
 ---
 

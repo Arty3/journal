@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import { sortedEntries, latestWritten, readingTimeLabel, visibleStatus } from '../lib/entries';
+import { sortedEntries, latestWritten, metaLine, readingTimeLabel } from '../lib/entries';
 import { allTagHues } from '../lib/tagColors';
 
 const latest = latestWritten(await sortedEntries());
@@ -67,18 +67,7 @@ const hobbies = [
                         {latest.data.title} &rarr;
                     </a>
                     <span class="recent-desc">{latest.data.description}</span>
-                    {(latest.data.project || latest.data.written || visibleStatus(latest)) && (
-                        <span class="recent-meta">
-                            {[
-                                latest.data.project &&
-                                    `Developed during ${latest.data.project}`,
-                                latest.data.written && `Written ${latest.data.written}`,
-                                visibleStatus(latest),
-                            ]
-                                .filter(Boolean)
-                                .join(' · ')}
-                        </span>
-                    )}
+                    {metaLine(latest) && <span class="recent-meta">{metaLine(latest)}</span>}
                     {latest.data.tags.length > 0 && (
                         <ul class="tags">
                             {hueOrder(latest.data.tags).map((tag) => (

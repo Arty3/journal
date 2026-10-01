@@ -9,9 +9,9 @@ tags:
 - compiler
 - architectures
 draft: false
-written: Aug 2026
+written: august 2026
 project: 2025
-status: Concluded
+status: completed
 ---
 
 > [!IMPORTANT]

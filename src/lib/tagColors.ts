@@ -23,13 +23,38 @@ const EMBEDDING_DIMS = 384;
 /*
  * Embedding bare words is noisy ("paper" drifts toward the material,
  * "python" toward the snake); a short context sharpens the topical
- * sense. Bump CACHE_VERSION whenever the template changes so cached
- * embeddings are recomputed.
+ * sense. Bump CACHE_VERSION whenever the template or the cache format
+ * changes so cached embeddings are recomputed.
  */
-const CACHE_VERSION = 3;
-const contextualize = (tag: string) => `a blog post on the topic of ${tag}`;
+const CACHE_VERSION = 4;
 
-type EmbeddingCache = Record<string, number[]>;
+/*
+ * The small model doesn't know the hardware jargon ("rtl", "asic",
+ * "abi" all landed nearest each other at no better than chance) and
+ * reads short ambiguous words the wrong way ("kernel" as kernel
+ * methods, "unity" as the noun). A gloss spells out the intended
+ * sense for those; every other tag goes through the template as is.
+ * Only the embedding sees the gloss — the tag itself is unchanged.
+ */
+const GLOSSES: Record<string, string> = {
+    abi: 'the ABI, the application binary interface and calling conventions of compiled C and C++ code',
+    architectures: 'CPU architectures and instruction set architectures',
+    asic: 'ASIC design, taking a digital chip from RTL through synthesis and physical implementation to tapeout',
+    hardware: 'digital hardware design, chips, FPGAs and ASICs',
+    kernel: 'the operating system kernel, Linux internals and system calls',
+    python: 'the Python programming language',
+    rtl: 'RTL, register-transfer level digital hardware design in Verilog and SystemVerilog',
+    security: 'software security, exploits and memory safety',
+    systemverilog: 'SystemVerilog, the hardware description language for RTL design and verification',
+    unity: 'the Unity game engine, rendering and shaders',
+};
+
+const contextualize = (tag: string) =>
+    `a blog post on the topic of ${GLOSSES[tag] ?? tag}`;
+
+/* the text that was embedded travels with the vector, so editing a
+   gloss recomputes just that tag rather than needing a version bump */
+type EmbeddingCache = Record<string, { text: string; vector: number[] }>;
 
 function readCache(): EmbeddingCache {
     try {
@@ -67,9 +92,9 @@ function hashedEmbedding(tag: string): number[] {
     return vector;
 }
 
-async function embedTags(tags: string[]): Promise<EmbeddingCache> {
+async function embedTags(tags: string[]): Promise<Record<string, number[]>> {
     const cache = readCache();
-    const missing = tags.filter((tag) => !cache[tag]);
+    const missing = tags.filter((tag) => cache[tag]?.text !== contextualize(tag));
     if (missing.length > 0) {
         try {
             const { pipeline } = await import('@huggingface/transformers');
@@ -79,13 +104,17 @@ async function embedTags(tags: string[]): Promise<EmbeddingCache> {
                 { dtype: 'q8' },
             );
             for (const tag of missing) {
-                const output = await extractor(contextualize(tag), {
+                const text = contextualize(tag);
+                const output = await extractor(text, {
                     pooling: 'mean',
                     normalize: true,
                 });
-                cache[tag] = [...(output.data as Float32Array)].map(
-                    (x) => Math.round(x * 1e5) / 1e5,
-                );
+                cache[tag] = {
+                    text,
+                    vector: [...(output.data as Float32Array)].map(
+                        (x) => Math.round(x * 1e5) / 1e5,
+                    ),
+                };
             }
             writeCache(cache);
         } catch (error) {
@@ -95,11 +124,11 @@ async function embedTags(tags: string[]): Promise<EmbeddingCache> {
                 error,
             );
             for (const tag of missing) {
-                cache[tag] = hashedEmbedding(tag);
+                cache[tag] = { text: contextualize(tag), vector: hashedEmbedding(tag) };
             }
         }
     }
-    return cache;
+    return Object.fromEntries(tags.map((tag) => [tag, cache[tag].vector]));
 }
 
 function normalize(vector: number[]): number[] {
