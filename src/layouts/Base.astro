@@ -87,10 +87,16 @@ const copyrightYears = buildYear > firstYear ? `${firstYear}–${buildYear}` : `
                 </a>
                 <div class="nav-pages">
                     <a href="/entries/" class="nav-link">Entries</a>
-                    <a href="/#subscribe" class="nav-link">Subscribe</a>
                     <a href="/#what-this-is" class="nav-link">About</a>
                 </div>
                 <div class="nav-links">
+                    <a href="/#subscribe" class="icon-link" aria-label="Subscribe" title="Subscribe">
+                        <!-- a bell, as on the subscribe box itself -->
+                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M12 2.25a6.75 6.75 0 0 0-6.75 6.75v3.6c0 .54-.16 1.07-.46 1.52L3.3 16.4a1.25 1.25 0 0 0 1.04 1.95h15.32a1.25 1.25 0 0 0 1.04-1.95l-1.49-2.28a2.75 2.75 0 0 1-.46-1.52V9A6.75 6.75 0 0 0 12 2.25Z" />
+                            <path d="M9.25 19.5a2.75 2.75 0 0 0 5.5 0h-5.5Z" />
+                        </svg>
+                    </a>
                     <a
                         href="mailto:luca.goddijn@gmail.com"
                         class="icon-link"
@@ -116,7 +122,7 @@ const copyrightYears = buildYear > firstYear ? `${firstYear}–${buildYear}` : `
                     </a>
                     <a
                         href="https://www.linkedin.com/in/luca-goddijn/"
-                        class="icon-link"
+                        class="icon-link icon-link-linkedin"
                         aria-label="LinkedIn"
                         title="LinkedIn"
                         target="_blank"
@@ -314,6 +320,13 @@ const copyrightYears = buildYear > firstYear ? `${firstYear}–${buildYear}` : `
     .icon-link svg {
         width: 1.75rem;
         height: 1.75rem;
+    }
+
+    /* the LinkedIn glyph fills its box edge to edge, unlike the others,
+       so it is drawn a little smaller to look the same size */
+    .icon-link-linkedin svg {
+        width: 1.5rem;
+        height: 1.5rem;
     }
 
     main a {
