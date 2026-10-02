@@ -17,6 +17,11 @@ interface Props {
 const { title, description, image } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(image ?? '/og.png', Astro.site);
+/* the copyright years in the footer: the journal's first year, then a
+   range once the build year moves past it (the site rebuilds on push) */
+const firstYear = 2026;
+const buildYear = new Date().getFullYear();
+const copyrightYears = buildYear > firstYear ? `${firstYear}–${buildYear}` : `${firstYear}`;
 ---
 
 <!doctype html>
@@ -24,6 +29,7 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="author" content="Luca Goddijn" />
         <meta name="theme-color" content="#16161a" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <!-- iOS ignores SVG favicons for home-screen and tab icons -->
@@ -140,7 +146,7 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
         </main>
         <footer>
             <p>
-                Content licensed under <a href="https://creativecommons.org/licenses/by/4.0/" rel="license">CC BY 4.0</a>, code under MIT.
+                &copy; {copyrightYears} Luca Goddijn. Content licensed under <a href="https://creativecommons.org/licenses/by/4.0/" rel="license">CC BY 4.0</a>, code under <a href="https://github.com/Arty3/journal/blob/main/LICENSE">MIT</a>.
             </p>
         </footer>
     </body>
@@ -615,6 +621,7 @@ const ogImage = new URL(image ?? '/og.png', Astro.site);
         margin-top: 4rem;
         padding: 1.5rem 0;
         border-top: 1px solid var(--border);
+        font-family: var(--font-ui);
         color: var(--muted);
         font-size: 0.85rem;
     }
