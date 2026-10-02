@@ -387,9 +387,11 @@ const statusLabel = (status: string | undefined) =>
     .entry-list > li:hover :global(.reading-time),
     .entry-list > li:hover .card > p,
     .entry-list > li:hover .when :global(.status),
+    .entry-list > li:hover .when .detail,
     .entry-list > li:has(h2 a:focus-visible) :global(.reading-time),
     .entry-list > li:has(h2 a:focus-visible) .card > p,
-    .entry-list > li:has(h2 a:focus-visible) .when :global(.status) {
+    .entry-list > li:has(h2 a:focus-visible) .when :global(.status),
+    .entry-list > li:has(h2 a:focus-visible) .when .detail {
         color: var(--fg);
     }
 
