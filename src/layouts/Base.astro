@@ -12,10 +12,13 @@ interface Props {
     description?: string;
     /** Social-preview image path; defaults to the site icon card. */
     image?: string;
+    /** Keep the page out of search indexes and omit its canonical URL:
+        for pages like 404 that are served at URLs other than their own. */
+    noindex?: boolean;
 }
 
-const { title, description, image } = Astro.props;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const { title, description, image, noindex = false } = Astro.props;
+const canonical = noindex ? undefined : new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(image ?? '/og.png', Astro.site);
 /* the copyright years in the footer: the journal's first year, then a
    range once the build year moves past it (the site rebuilds on push) */
@@ -36,12 +39,13 @@ const copyrightYears = buildYear > firstYear ? `${firstYear}–${buildYear}` : `
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <title>{title}</title>
         {description && <meta name="description" content={description} />}
-        <link rel="canonical" href={canonical} />
+        {noindex && <meta name="robots" content="noindex" />}
+        {canonical && <link rel="canonical" href={canonical} />}
         <meta property="og:title" content={title} />
         {description && <meta property="og:description" content={description} />}
         <meta property="og:site_name" content="Luca's Journal" />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={canonical} />
+        {canonical && <meta property="og:url" content={canonical} />}
         <meta property="og:image" content={ogImage} />
         <meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
         <link
