@@ -705,31 +705,45 @@ const copyrightYears = buildYear > firstYear ? `${firstYear}–${buildYear}` : `
             font-size: 1.05rem;
         }
 
+        /* a fixed two-row grid: the name alone on top, then the page links
+           on the left and the icons on the right of the row beneath it,
+           whatever the screen width */
         header nav {
-            gap: 1.25rem;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            row-gap: 1.25rem;
+            column-gap: 1rem;
             padding-top: 1.25rem;
             margin-bottom: 2rem;
         }
 
-        .site-title,
-        .nav-link {
-            font-size: 1.25rem;
-        }
-
         .site-title {
+            grid-column: 1 / -1;
             font-size: 1.5rem;
         }
 
-        /* the page links drop to their own row under the name and icons */
         .nav-pages {
-            order: 3;
-            width: 100%;
-            gap: 1.25rem;
+            gap: 1rem;
             margin-left: 0;
         }
 
+        .nav-link {
+            font-size: 1.15rem;
+        }
+
         .nav-links {
-            margin-left: auto;
+            gap: 0.7rem;
+            justify-self: end;
+        }
+
+        .icon-link svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .icon-link-linkedin svg {
+            width: 1.25rem;
+            height: 1.25rem;
         }
 
         h1 {
