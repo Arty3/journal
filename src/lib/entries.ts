@@ -1,59 +1,8 @@
-import { execFileSync } from 'node:child_process';
-import { statSync } from 'node:fs';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { formatDate, formatSpan, parseSpan, pointIndex, spanBounds } from './dates';
-
-/**
- * When an entry was last touched, taken from git history so no dates need
- * to be kept in frontmatter. Requires full history at build time
- * (the deploy workflow checks out with fetch-depth: 0).
- * Falls back to filesystem mtime for files not yet committed.
- */
-function lastUpdated(filePath: string | undefined): Date {
-    if (!filePath) return new Date(0);
-    try {
-        const out = execFileSync(
-            'git',
-            ['log', '-1', '--format=%ct', '--', filePath],
-            { encoding: 'utf8' },
-        ).trim();
-        if (out) return new Date(Number(out) * 1000);
-    } catch {
-        // not a git checkout — fall through to mtime
-    }
-    try {
-        return statSync(filePath).mtime;
-    } catch {
-        return new Date(0);
-    }
-}
-
-/**
- * When an entry was first created, taken from the commit that added
- * the file. A file in a git checkout with no such commit is an entry
- * still being drafted, so it counts as created now: the draft in
- * progress is by definition the newest. Outside git, filesystem birth
- * time (then mtime) stands in.
- */
-function createdAt(filePath: string | undefined): Date {
-    if (!filePath) return new Date(0);
-    try {
-        const out = execFileSync(
-            'git',
-            ['log', '--follow', '--diff-filter=A', '-1', '--format=%ct', '--', filePath],
-            { encoding: 'utf8' },
-        ).trim();
-        return out ? new Date(Number(out) * 1000) : new Date();
-    } catch {
-        // not a git checkout — fall through to filesystem times
-    }
-    try {
-        const stat = statSync(filePath);
-        return stat.birthtime.getTime() > 0 ? stat.birthtime : stat.mtime;
-    } catch {
-        return new Date(0);
-    }
-}
+/* git-derived created/updated times live in a plain Node module so the
+   build config can share them (sitemap lastmod) */
+import { createdAt, lastUpdated } from './gitDates.mjs';
 
 export type Entry = CollectionEntry<'entries'> & {
     created: Date;

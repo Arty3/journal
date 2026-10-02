@@ -9,10 +9,15 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeMathTextUnderscores from './src/lib/rehypeMathTextUnderscores.mjs';
 import rehypeLazyImages from './src/lib/rehypeLazyImages.mjs';
+import { withLastmod } from './src/lib/sitemapDates.mjs';
 
 export default defineConfig({
     site: 'https://journal.lucagoddijn.com',
-    integrations: [mdx(), sitemap()],
+    integrations: [
+        mdx(),
+        // Per-page <lastmod> from git, so crawlers see which pages changed.
+        sitemap({ serialize: withLastmod() }),
+    ],
     markdown: {
         syntaxHighlight: {
             type: 'shiki',
