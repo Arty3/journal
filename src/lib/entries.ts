@@ -30,8 +30,10 @@ function lastUpdated(filePath: string | undefined): Date {
 
 /**
  * When an entry was first created, taken from the commit that added
- * the file. Falls back to filesystem birth time (then mtime) for
- * files not yet committed.
+ * the file. A file in a git checkout with no such commit is an entry
+ * still being drafted, so it counts as created now: the draft in
+ * progress is by definition the newest. Outside git, filesystem birth
+ * time (then mtime) stands in.
  */
 function createdAt(filePath: string | undefined): Date {
     if (!filePath) return new Date(0);
@@ -41,7 +43,7 @@ function createdAt(filePath: string | undefined): Date {
             ['log', '--follow', '--diff-filter=A', '-1', '--format=%ct', '--', filePath],
             { encoding: 'utf8' },
         ).trim();
-        if (out) return new Date(Number(out) * 1000);
+        return out ? new Date(Number(out) * 1000) : new Date();
     } catch {
         // not a git checkout — fall through to filesystem times
     }
@@ -113,15 +115,16 @@ export async function sortedEntries(): Promise<Entry[]> {
 /**
  * The most recently written entry, judged by the `written` date (git
  * creation month as fallback). Entries written the same month tie-break
- * on the newest project, then on git creation time — never on the last
- * edit, which would let a typo fix displace the actual latest entry.
+ * on when they were added to the journal (git creation time), then on
+ * the newest project — never on the last edit, which would let a typo
+ * fix displace the actual latest entry.
  */
 export function latestWritten(entries: Entry[]): Entry | undefined {
     return [...entries].sort(
         (a, b) =>
             writtenSortKey(b) - writtenSortKey(a) ||
-            projectSortKey(b) - projectSortKey(a) ||
-            b.created.getTime() - a.created.getTime(),
+            b.created.getTime() - a.created.getTime() ||
+            projectSortKey(b) - projectSortKey(a),
     )[0];
 }
 

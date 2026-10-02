@@ -46,6 +46,7 @@ const GLOSSES: Record<string, string> = {
     rtl: 'RTL, register-transfer level digital hardware design in Verilog and SystemVerilog',
     security: 'software security, exploits and memory safety',
     systemverilog: 'SystemVerilog, the hardware description language for RTL design and verification',
+    tapeout: 'a chip tapeout, sending a finished ASIC design to the semiconductor foundry for fabrication',
     unity: 'the Unity game engine, rendering and shaders',
 };
 

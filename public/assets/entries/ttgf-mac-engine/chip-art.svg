@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 650" width="1200" height="650" font-family="ui-monospace, Cascadia Code, Consolas, monospace">
+  <rect width="1200" height="650" fill="#16161a"/>
+  <!-- the 1x2 core area, to scale: ~352 x 317 um drawn at 1.4 px/um -->
+  <g transform="translate(120 130)">
+    <rect x="0" y="0" width="493" height="444" fill="#1d1d22" stroke="#2c2c32" stroke-width="2"/>
+    <!-- metal-4 power straps, roughly as the flow places them -->
+    <g stroke="#2c5aa0" stroke-width="6" opacity="0.55">
+      <line x1="60" y1="0" x2="60" y2="444"/><line x1="140" y1="0" x2="140" y2="444"/><line x1="220" y1="0" x2="220" y2="444"/>
+      <line x1="300" y1="0" x2="300" y2="444"/><line x1="380" y1="0" x2="380" y2="444"/><line x1="460" y1="0" x2="460" y2="444"/>
+    </g>
+    <!-- the signature: 8 um glyphs, 80 um long, anchored 15 um from the bottom-left corner,
+         reading upward. baseline at x = 21 px, glyphs extend left to x ~ 13, from y 423 up to 311 -->
+    <g transform="translate(21 423) rotate(-90)">
+      <text x="0" y="0" font-size="11.2" fill="#8ab4e8" font-weight="700" textLength="112" lengthAdjust="spacingAndGlyphs">L. GODDIJN</text>
+    </g>
+    <!-- selection box hugging the signature's real extent -->
+    <rect x="9" y="305" width="17" height="124" fill="none" stroke="#8ab4e8" stroke-width="1.5" stroke-dasharray="4 4"/>
+    <text x="0" y="-16" fill="#97978f" font-size="17">1x2 core area, about 352 by 317 micrometres, to scale</text>
+  </g>
+  <!-- zoom lines from the selection box's right corners to the inset's left corners -->
+  <path d="M 146 435 L 720 170" stroke="#8ab4e8" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.6"/>
+  <path d="M 146 559 L 720 620" stroke="#8ab4e8" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.6"/>
+  <!-- zoom inset: the same text, scaled up -->
+  <g transform="translate(720 170)">
+    <rect x="0" y="0" width="340" height="450" fill="#1d1d22" stroke="#8ab4e8" stroke-width="2"/>
+    <g transform="translate(200 420) rotate(-90)">
+      <text x="0" y="0" font-size="60" fill="#8ab4e8" font-weight="700" textLength="390" lengthAdjust="spacingAndGlyphs">L. GODDIJN</text>
+    </g>
+  </g>
+</svg>
