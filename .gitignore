@@ -24,4 +24,5 @@ npm-debug.log*
 .env.production
 
 # agents
-.claude
+.claude/
+.agent_space/

@@ -12,3 +12,7 @@ You are not allowed to edit agent related files, such as CLAUDE.md or AGENTS.md
 You are not allowed to edit LICENSE related files, such as LICENSE or LICENSE-CONTENT.
 
 Your edits should be scoped to code changes, styling changes, setup file changes, and logic-oriented changes such as rerouting DNS, or modifying the framework settings.
+
+## Agent Space
+
+You are free to use /.agent_space/ for any temporary files, throwaway files, experiments, and so on.
