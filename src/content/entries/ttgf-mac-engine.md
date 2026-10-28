@@ -274,3 +274,39 @@ One more thing: multiple people have asked me:
 As in, what will you do with the chip once you have it and it's been tested? The answer to that is literally just keep it on display somewhere. Maybe not so satisfying for the amount of work I put in, but I think that's perfectly ok. Most of my projects roughly end up like that, except this time, it sits on a shelf. I don't necessarily need some long-term use for it. I can just be happy for the experience, the journey, and that I made something.
 
 See you in November.
+
+## See you in October.
+
+Earlier this month, I got a notification from the Tiny Tapeout team letting me know that the wafers had arrived.
+
+I was been expecting news in November, so seeing them arrive in early October was a nice surprise.
+
+So, check it out:
+
+<img src="../../assets/entries/ttgf-mac-engine/wafer.png" width="60%" style="border-radius: 16px;" />
+
+It's a pretty impressive sight, although almost everything in this image has absolutely nothing to do with me. My chip is just a tiny speck of dust somewhere in there.
+
+Here, hopefully this makes it a little easier to find:
+
+<img src="../../assets/entries/ttgf-mac-engine/wafer-map.png" width="40%" style="border-radius: 16px;" />
+
+Maybe not the best visualisation, but I think it'll do.
+
+What you're looking at is the GF26a shuttle, with my design occupying a tiny fraction of it. The one right next to it might look very similar, but it's actually a different shuttle, GF26b.
+
+Then, about a week later, something else happened:
+
+<img src="../../assets/entries/ttgf-mac-engine/fork.png" width="60%" style="border-radius: 16px;" />
+
+At first I thought nothing of it, then I opened his profile:
+
+<img src="../../assets/entries/ttgf-mac-engine/profile.png" width="60%" style="border-radius: 16px;" />
+
+My initial reaction was "wtf?", but I quickly realised what was going on.
+
+My repository had been forked into the `wafer-space-bench` organisation as part of [wafer.space-bench](https://github.com/wafer-space/wafer.space-bench), a project benchmarking GF180 process options against open designs from wafer.space, Google GF180MCU, and Tiny Tapeout shuttles.
+
+So, nothing particularly special about my design. Still, seeing something I made become part of a benchmarking set felt pretty good, and I couldn't help but feel a little proud.
+
+In any case, I'm still waiting for the actual silicon to arrive, so I guess I'll see you then.
