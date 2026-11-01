@@ -227,6 +227,16 @@ const statusLabel = (status: string | undefined) =>
         transition: transform 0.2s ease;
     }
 
+    /*
+     * The filter script hides entries via the hidden attribute. The
+     * display: grid above outranks the UA's [hidden] rule in browsers
+     * where that rule isn't !important (iOS Safari), which left the
+     * tag filters doing nothing on phones — so spell it out.
+     */
+    .entry-list > li[hidden] {
+        display: none;
+    }
+
     /* keyboard focus mirrors the hover affordances throughout */
     .entry-list > li:hover,
     .entry-list > li:has(h2 a:focus-visible) {

@@ -142,8 +142,12 @@ function normalize(vector: number[]): number[] {
  * cosine distance between neighbors, which is exactly what the hue
  * layout rewards — only adjacent tags share a region of the spectrum.
  * Nearest-neighbor tours from every start, each polished with 2-opt
- * (segment reversal) and or-opt (single relocation); the shortest
- * wins. Deterministic, and tag counts are tiny, so cost is irrelevant.
+ * (segment reversal) and or-opt (relocating segments of one to three
+ * tags, optionally reversed); the shortest wins. Deterministic, and
+ * tag counts are tiny, so cost is irrelevant. Plain single-tag or-opt
+ * proved too weak: it left whole clusters stranded at a path end when
+ * moving them inward took a multi-tag rearrangement no single step of
+ * the search could reach.
  *
  * A Fiedler-vector (spectral) layout was used before this. With every
  * tag embedded through the same context template, all pairs are
@@ -197,16 +201,21 @@ function pathOrder(vectors: number[][]): {
                     }
                 }
             }
-            /* or-opt: relocate a single tag */
-            for (let i = 0; i < n; i++) {
-                for (let j = 0; j < n; j++) {
-                    if (i === j) continue;
-                    const candidate = [...path];
-                    const [moved] = candidate.splice(i, 1);
-                    candidate.splice(j, 0, moved);
-                    if (length(candidate) < length(path) - 1e-12) {
-                        path.splice(0, n, ...candidate);
-                        improved = true;
+            /* or-opt: relocate a short segment, straight or reversed */
+            for (let segment = 1; segment <= 3; segment++) {
+                for (let i = 0; i + segment <= n; i++) {
+                    for (let j = 0; j + segment <= n; j++) {
+                        if (i === j) continue;
+                        for (const flip of [false, true]) {
+                            const candidate = [...path];
+                            const moved = candidate.splice(i, segment);
+                            if (flip) moved.reverse();
+                            candidate.splice(j, 0, ...moved);
+                            if (length(candidate) < length(path) - 1e-12) {
+                                path.splice(0, n, ...candidate);
+                                improved = true;
+                            }
+                        }
                     }
                 }
             }
