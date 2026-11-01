@@ -350,24 +350,31 @@ const projectYears = newestFirst(
     }
 
     /*
-     * Chevron in place of the default dropdown triangle. The glyph is
-     * two borders of a rotated square, whose point hangs below the box
-     * center — the translate before the rotation recenters it.
+     * Chevron in place of the default dropdown triangle. It used to be
+     * drawn on ::picker-icon out of borders and a rotation, which
+     * Chrome laid out fine but Safari 27 — the first Safari with
+     * customizable selects — rendered at a huge, wrong size on iOS.
+     * So the pseudo-element is hidden and the chevron rides on the
+     * select itself as a background image, which every engine sizes
+     * the same way. Gated by @supports like the opt-in above: engines
+     * without base-select keep the native select, arrow included.
      */
     .entry-controls select::picker-icon {
-        content: '';
-        align-self: center;
-        width: 0.35em;
-        height: 0.35em;
-        margin-left: 0.5rem;
-        border-right: 1.5px solid currentColor;
-        border-bottom: 1.5px solid currentColor;
-        transform: translateY(-15%) rotate(45deg);
-        transition: transform 0.15s ease;
+        display: none;
     }
 
-    .entry-controls select:open::picker-icon {
-        transform: translateY(20%) rotate(225deg);
+    @supports (appearance: base-select) {
+        .entry-controls select {
+            padding-right: 1.6rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23e6e6e2' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.55rem center;
+            background-size: 0.6em auto;
+        }
+
+        .entry-controls select:open {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 5l4-4 4 4' fill='none' stroke='%23e6e6e2' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        }
     }
 
     .entry-controls option {
