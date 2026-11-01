@@ -8,7 +8,6 @@ draft: false
 written: august 2026
 project: 2024
 status: completed
-thumbnail: /assets/entries/worst-hello-world/malbolge-thumb.png
 ---
 
 # Hello, World!
