@@ -519,6 +519,29 @@ const copyrightYears = buildYear > firstYear ? `${firstYear}–${buildYear}` : `
         width: 75%;
     }
 
+    /*
+     * Photo grids: an entry wraps a run of <img>s in
+     * <div class="img-grid"> for equal columns at equal scale,
+     * two across by default (--cols overrides). Kept narrower
+     * than the column so a tall stack of rows doesn't dominate
+     * the page. Cells are squared so one odd aspect ratio
+     * can't stagger the rows.
+     */
+    .img-grid {
+        display: grid;
+        grid-template-columns: repeat(var(--cols, 2), 1fr);
+        gap: 0.9rem;
+        width: 60%;
+    }
+
+    .img-grid img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: 16px;
+    }
+
     .tags {
         display: flex;
         flex-wrap: wrap;
@@ -766,6 +789,11 @@ const copyrightYears = buildYear > firstYear ? `${firstYear}–${buildYear}` : `
         /* the narrow column needs every pixel; undo the desktop shrink */
         table:has(td img) {
             width: 100%;
+        }
+
+        .img-grid {
+            width: 100%;
+            gap: 0.6rem;
         }
 
         /*

@@ -22,7 +22,8 @@
     "rehype-katex": "^7.0.1",
     "rehype-slug": "^6.0.0",
     "remark-github-blockquote-alert": "^2.1.0",
-    "remark-math": "^6.0.0"
+    "remark-math": "^6.0.0",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "github-slugger": "^2.0.0",
