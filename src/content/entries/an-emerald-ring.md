@@ -200,6 +200,8 @@ And finally:
 
 <img src="../../assets/entries/an-emerald-ring/ring-2.png" width="60%" style="border-radius: 16px;" />
 
+<img src="../../assets/entries/an-emerald-ring/ring-3.png" width="60%" style="border-radius: 16px;" />
+
 *(Obviously, that's not her ring size. And, as previously established, her hands are definitely nicer than mine.)*
 
 After paying for everything and saying my many thanks and goodbyes, I rushed outside to see the ring in the bright, golden sunlight. I wish I had a picture of that moment, but I don't.
