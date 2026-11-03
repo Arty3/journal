@@ -1,5 +1,5 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { getCollection } from 'astro:content';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 /**
  * Build-time semantic tag colors.
@@ -14,7 +14,10 @@ import { getCollection } from 'astro:content';
  * a growing one fills the spectrum in.
  *
  * Embeddings are cached in src/data/tag-embeddings.json (meant to be
- * committed) so the model only loads when a new tag appears.
+ * committed) so the model only loads when a new tag appears. The
+ * finished hues are cached alongside them: the seriation costs tens
+ * of seconds at today's tag count, so it only reruns when the tag set
+ * or a vector changes.
  */
 
 const CACHE_PATH = 'src/data/tag-embeddings.json';
@@ -23,10 +26,10 @@ const EMBEDDING_DIMS = 384;
 /*
  * Embedding bare words is noisy ("paper" drifts toward the material,
  * "python" toward the snake); a short context sharpens the topical
- * sense. Bump CACHE_VERSION whenever the template or the cache format
- * changes so cached embeddings are recomputed.
+ * sense. Bump CACHE_VERSION whenever the template, the cache format,
+ * or the hue layout changes so cached results are recomputed.
  */
-const CACHE_VERSION = 4;
+const CACHE_VERSION = 6;
 
 /*
  * The small model doesn't know the hardware jargon ("rtl", "asic",
@@ -42,12 +45,16 @@ const GLOSSES: Record<string, string> = {
     asic: 'ASIC design, taking a digital chip from RTL through synthesis and physical implementation to tapeout',
     hardware: 'digital hardware design, chips, FPGAs and ASICs',
     kernel: 'the operating system kernel, Linux internals and system calls',
+    modding: 'game modding, creating mods for video games built on engines such as Unity',
     python: 'the Python programming language',
+    'reverse engineering': 'reverse engineering compiled software, decompiling binaries and inspecting program internals',
     rtl: 'RTL, register-transfer level digital hardware design in Verilog and SystemVerilog',
+    rust: 'the Rust programming language, a systems language in the C and C++ family',
     security: 'software security, exploits and memory safety',
     systemverilog: 'SystemVerilog, the hardware description language for RTL design and verification',
     tapeout: 'a chip tapeout, sending a finished ASIC design to the semiconductor foundry for fabrication',
     unity: 'the Unity game engine, rendering and shaders',
+    web: 'web development, building websites and browser user interfaces',
 };
 
 const contextualize = (tag: string) =>
@@ -57,20 +64,26 @@ const contextualize = (tag: string) =>
    gloss recomputes just that tag rather than needing a version bump */
 type EmbeddingCache = Record<string, { text: string; vector: number[] }>;
 
-function readCache(): EmbeddingCache {
+/* the vectors plus the finished hue per tag — the seriation dwarfs
+   everything else here, so its result is cached too */
+type StoredCache = { vectors: EmbeddingCache; hues?: Record<string, number> };
+
+function readCache(): StoredCache {
     try {
         const stored = JSON.parse(readFileSync(CACHE_PATH, 'utf8'));
-        return stored.version === CACHE_VERSION ? stored.vectors : {};
+        return stored.version === CACHE_VERSION
+            ? { vectors: stored.vectors, hues: stored.hues }
+            : { vectors: {} };
     } catch {
-        return {};
+        return { vectors: {} };
     }
 }
 
-function writeCache(cache: EmbeddingCache): void {
+function writeCache(cache: StoredCache): void {
     mkdirSync('src/data', { recursive: true });
     writeFileSync(
         CACHE_PATH,
-        JSON.stringify({ version: CACHE_VERSION, vectors: cache }) + '\n',
+        JSON.stringify({ version: CACHE_VERSION, ...cache }) + '\n',
         'utf8',
     );
 }
@@ -93,43 +106,46 @@ function hashedEmbedding(tag: string): number[] {
     return vector;
 }
 
-async function embedTags(tags: string[]): Promise<Record<string, number[]>> {
-    const cache = readCache();
-    const missing = tags.filter((tag) => cache[tag]?.text !== contextualize(tag));
-    if (missing.length > 0) {
-        try {
-            const { pipeline } = await import('@huggingface/transformers');
-            const extractor = await pipeline(
-                'feature-extraction',
-                'Xenova/all-MiniLM-L6-v2',
-                { dtype: 'q8' },
-            );
-            for (const tag of missing) {
-                const text = contextualize(tag);
-                const output = await extractor(text, {
-                    pooling: 'mean',
-                    normalize: true,
-                });
-                cache[tag] = {
-                    text,
-                    vector: [...(output.data as Float32Array)].map(
-                        (x) => Math.round(x * 1e5) / 1e5,
-                    ),
-                };
-            }
-            writeCache(cache);
-        } catch (error) {
-            console.warn(
-                `[tag-colors] embedding failed for ${missing.length} tag(s), ` +
-                    'using hashed fallback hues:',
-                error,
-            );
-            for (const tag of missing) {
-                cache[tag] = { text: contextualize(tag), vector: hashedEmbedding(tag) };
-            }
+/**
+ * Embed the given tags into `vectors` (mutated in place). Returns
+ * whether the results are real model embeddings and thus worth
+ * persisting — hashed fallbacks stay out of the cache file so the
+ * model gets another chance on the next build.
+ */
+async function embedMissing(vectors: EmbeddingCache, missing: string[]): Promise<boolean> {
+    if (missing.length === 0) return true;
+    try {
+        const { pipeline } = await import('@huggingface/transformers');
+        const extractor = await pipeline(
+            'feature-extraction',
+            'Xenova/all-MiniLM-L6-v2',
+            { dtype: 'q8' },
+        );
+        for (const tag of missing) {
+            const text = contextualize(tag);
+            const output = await extractor(text, {
+                pooling: 'mean',
+                normalize: true,
+            });
+            vectors[tag] = {
+                text,
+                vector: [...(output.data as Float32Array)].map(
+                    (x) => Math.round(x * 1e5) / 1e5,
+                ),
+            };
         }
+        return true;
+    } catch (error) {
+        console.warn(
+            `[tag-colors] embedding failed for ${missing.length} tag(s), ` +
+                'using hashed fallback hues:',
+            error,
+        );
+        for (const tag of missing) {
+            vectors[tag] = { text: contextualize(tag), vector: hashedEmbedding(tag) };
+        }
+        return false;
     }
-    return Object.fromEntries(tags.map((tag) => [tag, cache[tag].vector]));
 }
 
 function normalize(vector: number[]): number[] {
@@ -238,17 +254,31 @@ async function computeHues(): Promise<Map<string, number>> {
     const entries = await getCollection('entries', ({ data }) => !data.draft);
     const tags = [...new Set(entries.flatMap((entry) => entry.data.tags))].sort();
     if (tags.length === 0) return new Map();
-
-    const embeddings = await embedTags(tags);
     if (tags.length === 1) return new Map([[tags[0], 220]]);
 
-    const { order, distance } = pathOrder(tags.map((tag) => embeddings[tag]));
+    const cache = readCache();
+    const missing = tags.filter((tag) => cache.vectors[tag]?.text !== contextualize(tag));
+
+    /* every vector unchanged and the cached layout covering exactly
+       the tags in use: skip the seriation entirely */
+    const cached = cache.hues;
+    if (
+        missing.length === 0 &&
+        cached &&
+        Object.keys(cached).length === tags.length &&
+        tags.every((tag) => cached[tag] !== undefined)
+    ) {
+        return new Map(tags.map((tag) => [tag, cached[tag]]));
+    }
+
+    const persistable = await embedMissing(cache.vectors, missing);
+    const { order, distance } = pathOrder(tags.map((tag) => cache.vectors[tag].vector));
     const n = order.length;
 
     /*
      * A path reads the same both ways — orient deterministically, with
      * the alphabetically earlier endpoint last (so the spectrum runs
-     * from the technical cluster down to the lighthearted tags).
+     * from the technical cluster down to the crafts tags).
      */
     if (tags[order[n - 1]].localeCompare(tags[order[0]]) > 0) order.reverse();
 
@@ -272,6 +302,9 @@ async function computeHues(): Promise<Map<string, number>> {
     for (let pos = 0; pos < n; pos++) {
         hues.set(tags[order[pos]], Math.round(position * 300));
         if (pos < n - 1) position += weights[pos];
+    }
+    if (persistable) {
+        writeCache({ vectors: cache.vectors, hues: Object.fromEntries(hues) });
     }
     return hues;
 }

@@ -8,6 +8,7 @@ tags:
 - unity
 - physics
 - math
+- c#
 draft: false
 written: august 2026
 project: july 2026
