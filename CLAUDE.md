@@ -1,1 +1,1 @@
-Treat @AGENTS.md as the authoritize rule-set.
+@AGENTS.md
