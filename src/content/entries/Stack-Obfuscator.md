@@ -2,12 +2,12 @@
 title: Stack Obfuscator
 description: Schrödinger's Segfault
 tags:
-- c++
-- abi
-- kernel
-- security
-- compiler
-- architectures
+  - c++
+  - abi
+  - kernel
+  - security
+  - compiler
+  - architectures
 draft: false
 written: august 2026
 project: 2025

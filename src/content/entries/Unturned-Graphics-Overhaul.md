@@ -2,13 +2,14 @@
 title: Unturned Graphics Overhaul
 description: Rendering a Goodbye
 tags:
-- computer graphics
-- rendering
-- shaders
-- unity
-- physics
-- math
-- c#
+  - computer graphics
+  - rendering
+  - shaders
+  - modding
+  - unity
+  - physics
+  - math
+  - c#
 draft: false
 written: august 2026
 project: july 2026

@@ -2,11 +2,11 @@
 title: Unturned Skins Mod
 description: For what it's worth
 tags:
-- c#
-- rust
-- modding
-- reverse engineering
-- economics
+  - c#
+  - rust
+  - modding
+  - reverse engineering
+  - economics
 draft: false
 written: november 2026
 project: january 2025 - march 2025

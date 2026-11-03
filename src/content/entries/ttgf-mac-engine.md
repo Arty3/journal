@@ -8,6 +8,7 @@ tags:
   - systemverilog
   - physics
   - tapeout
+  - machine learning
 draft: false
 written: october 2026
 project: may 2026 - present

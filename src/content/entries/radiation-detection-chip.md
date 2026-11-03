@@ -7,6 +7,7 @@ tags:
   - rtl
   - physics
   - radiation
+  - systemverilog
 draft: false
 written: september 2026
 project: october 2026 - present
