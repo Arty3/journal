@@ -8,8 +8,7 @@ import {
 } from '../lib/entries';
 import { formatDate, MONTHS, parseSpan, type DatePoint } from '../lib/dates';
 import { allTagHues } from '../lib/tagColors';
-import { getImage } from 'astro:assets';
-import type { ImageMetadata } from 'astro';
+import { listThumbnail } from '../lib/thumbnails';
 
 interface Props {
     entries: Entry[];
@@ -18,33 +17,7 @@ interface Props {
 const { entries } = Astro.props;
 const tagHues = await allTagHues();
 
-/*
- * Thumbnails are full-size files (they double as share images and
- * open full screen from the list), far larger than the 15rem box they
- * sit in. Browsers downscale such images coarsely, so the list gets
- * list-sized copies rendered at build time instead; the original is
- * kept on the element for the lightbox.
- */
-const originals = import.meta.glob<{ default: ImageMetadata | string }>(
-    '/public/assets/entries/**/*.{png,jpg,jpeg,webp,avif,gif}',
-);
-
-async function listThumbnail(path: string) {
-    const load = originals[`/public${path}`];
-    const source = load ? (await load()).default : undefined;
-    if (!source || typeof source === 'string') return { src: path, srcset: undefined };
-    const image = await getImage({
-        src: source,
-        width: 960,
-        height: 600,
-        fit: 'cover',
-        widths: [480, 960],
-        format: 'webp',
-        quality: 85,
-    });
-    return { src: image.src, srcset: image.srcSet.attribute };
-}
-
+/* list-sized copies of the thumbnails, rendered at build time */
 const thumbnails = new Map(
     await Promise.all(
         entries

@@ -3,8 +3,13 @@ import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import { sortedEntries, latestWritten, metaLine, readingTimeLabel } from '../lib/entries';
 import { allTagHues } from '../lib/tagColors';
+import { listThumbnail } from '../lib/thumbnails';
 
 const latest = latestWritten(await sortedEntries());
+/* the same build-time downscaled copy the entry list shows */
+const latestThumb = latest?.data.thumbnail
+    ? await listThumbnail(latest.data.thumbnail)
+    : undefined;
 const feedUrl = new URL('rss.xml', Astro.site).href;
 const tagHues = await allTagHues();
 /* same spectrum order as the entries page */
@@ -63,39 +68,57 @@ const hobbies = [
             <div class="recent">
                 <p class="recent-label">Latest from the journal:</p>
                 <div class="recent-card">
-                    <a class="recent-title" href={`/entries/${latest.id}/`}>
-                        {latest.data.title} &rarr;
-                    </a>
-                    <span class="recent-desc">{latest.data.description}</span>
-                    {metaLine(latest) && <span class="recent-meta">{metaLine(latest)}</span>}
-                    {latest.data.tags.length > 0 && (
-                        <ul class="tags">
-                            {hueOrder(latest.data.tags).map((tag) => (
-                                <li>
-                                    <a
-                                        href={`/tags/${tag}/`}
-                                        style={`--tag-hue: ${tagHues.get(tag)}`}
-                                    >
-                                        {tag}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
+                    <div class="recent-body">
+                        <a class="recent-title" href={`/entries/${latest.id}/`}>
+                            {latest.data.title} &rarr;
+                        </a>
+                        <span class="recent-desc">{latest.data.description}</span>
+                        {metaLine(latest) && <span class="recent-meta">{metaLine(latest)}</span>}
+                        {latest.data.tags.length > 0 && (
+                            <ul class="tags">
+                                {hueOrder(latest.data.tags).map((tag) => (
+                                    <li>
+                                        <a
+                                            href={`/tags/${tag}/`}
+                                            style={`--tag-hue: ${tagHues.get(tag)}`}
+                                        >
+                                            {tag}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                        <span class="reading-time">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                aria-hidden="true"
+                            >
+                                <circle cx="12" cy="12" r="9" />
+                                <path d="M12 7v5l3 2" />
+                            </svg>
+                            {readingTimeLabel(latest)}
+                        </span>
+                    </div>
+                    {latest.data.thumbnail && (
+                        <img
+                            class="thumb"
+                            src={latestThumb?.src ?? latest.data.thumbnail}
+                            srcset={latestThumb?.srcset}
+                            sizes="(max-width: 640px) 100vw, 15rem"
+                            width="240"
+                            height="150"
+                            data-full={latest.data.thumbnail}
+                            alt=""
+                            decoding="async"
+                            tabindex="0"
+                            role="button"
+                            aria-label={`View the ${latest.data.title} thumbnail full screen`}
+                        />
                     )}
-                    <span class="reading-time">
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            aria-hidden="true"
-                        >
-                            <circle cx="12" cy="12" r="9" />
-                            <path d="M12 7v5l3 2" />
-                        </svg>
-                        {readingTimeLabel(latest)}
-                    </span>
                 </div>
                 <p class="recent-browse">
                     <a href="/entries/">Browse all entries &rarr;</a>
@@ -347,27 +370,31 @@ const hobbies = [
 
     {
         hobbies.length > 0 && (
-            <>
-                <div class="hobby-photos">
-                    {hobbies.map((hobby) => (
-                        <button
-                            type="button"
-                            class="photo-button"
-                            aria-label={`View ${hobby.caption} photo full screen`}
-                        >
-                            <Image
-                                src={hobby.image!}
-                                alt={hobby.caption}
-                                widths={[480, 960]}
-                                sizes="(max-width: 640px) 100vw, 33vw"
-                            />
-                        </button>
-                    ))}
-                </div>
-                <dialog class="lightbox" aria-label="Full screen photo">
-                    <img src="" alt="" />
-                </dialog>
-            </>
+            <div class="hobby-photos">
+                {hobbies.map((hobby) => (
+                    <button
+                        type="button"
+                        class="photo-button"
+                        aria-label={`View ${hobby.caption} photo full screen`}
+                    >
+                        <Image
+                            src={hobby.image!}
+                            alt={hobby.caption}
+                            widths={[480, 960]}
+                            sizes="(max-width: 640px) 100vw, 33vw"
+                        />
+                    </button>
+                ))}
+            </div>
+        )
+    }
+
+    {
+        /* shared by the hobby photos and the latest entry's thumbnail */
+        (hobbies.length > 0 || latest?.data.thumbnail) && (
+            <dialog class="lightbox" aria-label="Full screen photo">
+                <img src="" alt="" />
+            </dialog>
         )
     }
 
@@ -624,7 +651,12 @@ const hobbies = [
 
     .recent-card {
         position: relative;
-        display: block;
+        display: grid;
+        /* the text column takes the width; the thumbnail (when there
+           is one) sits at the end, as in the entry list */
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 0 1rem;
         padding: 1rem 1.25rem;
         border: 1px solid var(--border);
         border-radius: 10px;
@@ -680,6 +712,31 @@ const hobbies = [
     .recent-card:hover .recent-title,
     .recent-title:focus-visible {
         background-size: 100% 2px;
+    }
+
+    .recent-body {
+        min-width: 0;
+    }
+
+    /* the same thumbnail as the entry list: sits above the stretched
+       link so it opens the lightbox, not the entry */
+    .recent-card .thumb {
+        position: relative;
+        z-index: 1;
+        width: 15rem;
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+        align-self: center;
+        margin-left: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        cursor: zoom-in;
+        transition: transform 0.2s ease;
+    }
+
+    .recent-card .thumb:hover,
+    .recent-card .thumb:focus-visible {
+        transform: scale(1.03);
     }
 
     .recent-desc {
@@ -787,6 +844,19 @@ const hobbies = [
         .hobby-photos {
             grid-template-columns: 1fr;
         }
+
+        .recent-card {
+            grid-template-columns: 1fr;
+            gap: 0.4rem;
+        }
+
+        /* the picture leads the card on a phone, as in the list */
+        .recent-card .thumb {
+            order: -1;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            margin: 0 0 0.5rem;
+        }
     }
 </style>
 
@@ -804,6 +874,24 @@ const hobbies = [
                 lightboxImg.src = img.src;
                 lightboxImg.alt = img.alt;
                 lightbox.showModal();
+            });
+        }
+
+        /* the latest entry's thumbnail opens the same way as in the list:
+           click or Enter/Space, showing the full-size original */
+        const thumb = document.querySelector<HTMLImageElement>('.recent-card .thumb');
+        if (thumb) {
+            const open = () => {
+                lightboxImg.src = thumb.dataset.full ?? thumb.currentSrc;
+                lightboxImg.alt = '';
+                lightbox.showModal();
+            };
+            thumb.addEventListener('click', open);
+            thumb.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    open();
+                }
             });
         }
 
