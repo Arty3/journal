@@ -8,6 +8,7 @@ tags:
   - security
   - compiler
   - architectures
+  - reverse engineering
 draft: false
 written: august 2026
 project: 2025
