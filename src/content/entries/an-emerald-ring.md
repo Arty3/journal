@@ -17,6 +17,10 @@ thumbnail: /assets/entries/an-emerald-ring/ring-1.jpg
 
 When I was a child, like many others, I was really into dinosaurs. I had toys, books, DVDs, and virtually everything dino-related. I think that's pretty common among children, but this may well have been my first real obsession. I was the kind of kid who, at birthday parties, would sit staring at dirt and rocks instead of playing with the other kids.
 
+As proof, here's a picture of me having the time of my life riding some dinosaur thing in the park:
+
+<img src="../../assets/entries/an-emerald-ring/dino-ride.png" width="40%" style="border-radius: 16px;" />
+
 One day, my parents gave me a hammer and a chisel as a gift. Yeah. For me, that was the best gift ever, because it meant I could finally split open — literally — a whole new world. I'd sit outside for hours, splitting open any rock I could find that looked remotely interesting.
 
 Most of them were just rocks, but I did eventually find a couple of fossils: a tiny crab and a crinoid.
