@@ -702,3 +702,38 @@ What's left to figure out now is the reference voltage, who closes the charge-ba
 - [Reliable electronics in a radiation environment, R2E, March 2022 (indicative HL-LHC levels table, slide 10)](https://indico.cern.ch/event/1137792/contributions/4792483/attachments/2416098/4134406/2022-03_R2E_CERN-KUKA.pdf)
 - [Strategy for Radiation Tolerance Assurance of the A&T electronic Equipment, 2014](https://indico.cern.ch/event/277669/contributions/1623330/attachments/506150/698763/AMICSA2014_AT_rat-tol-strategy_v2.pdf)
 - [R2E-related MD: slow controlled losses for RadMon/BLM cross-checks (thermal neutron ratio)](https://sapinski.web.cern.ch/physics/pub/LHCBLM/ATS_Note_R2E_MD_July11_e.pdf)
+
+## Assumptions
+
+Now, I know I just spoke a bit about the assumptions, but I thought it might be cleaner to list them out exactly.
+
+CERN didn't publish the details of the real chip, so the spec rests on the assumptions below. Each one is marked by where it comes from: **borrowed** from a public source, **derived** from other rows, or **mine**, meaning a choice I made because nothing public settles it.
+
+| # | Assumption | Value | Basis |
+|---|---|---|---|
+| 1 | Analogue front-end | One integrator, four comparators for negative current, one for positive | Borrowed: ACCURATE 3 Chip 3 slides |
+| 2 | Reference capacitors | 100 fF, 500 fF, 1 pF, 4 pF, plus 100 fF for positive current | Borrowed: same slides |
+| 3 | Threshold-to-capacitor pairing | Each comparator threshold selects one capacitor, larger for larger currents | Mine: my reading of the diagram |
+| 4 | Who triggers each charge packet | The digital side, which is this chip | Mine: my reading of the FPGA's role |
+| 5 | Reference voltage | 1 V, so packets of 0.1, 0.5, 1 and 4 pC | Mine: placeholder, not published |
+| 6 | Input current range | 4 fA to 20 µA | Borrowed: ACCURATE 2A, a different chip in the family |
+| 7 | Low-current method | Timing the integrator slope between threshold crossings | Mine: my reading of "direct slope measurement" |
+| 8 | Comparator timing | Asynchronous to the chip clock | Mine |
+| 9 | Largest burst to survive | 100 nC | Mine: placeholder, from a figure I could not confirm at source |
+| 10 | External interface | SPI slave, checksum on every frame | Mine |
+| 11 | Update rate | 1 ms at high currents, longer windows at low currents (one packet can take 25 s at 4 fA) | Mine: anchored on CROME's system-level "millisecond" claim |
+| 12 | Clock frequency | 20 MHz, four cycles per packet at the 5 MHz peak packet rate | Derived from 5 and 6; the factor of four is mine |
+| 13 | Baseline radiation | 10⁹ high-energy hadrons per cm² per year, 10 Gy lifetime dose | Borrowed: indicative R2E values for shielded alcoves, not a CROME requirement |
+| 14 | Stretch radiation | 10¹¹ per cm² per year, 1 kGy lifetime dose | Borrowed: same table, dispersion suppressor row |
+| 15 | Thermal neutrons | Up to 150 times the hadron fluence in shielded areas; not counted in the upset rate | Ratio borrowed; leaving it out is mine, since the process sensitivity is unknown |
+| 16 | Upset cross-section | 10⁻¹⁴ cm² per bit | Mine: placeholder until process data exists |
+| 17 | Flip-flop count | 10,000 | Placeholder until synthesis |
+| 18 | Safety budget | 10⁻⁷ dangerous failures per hour, 10% of the SIL 2 ceiling | Ceiling from IEC 61508; the 10% share is mine |
+| 19 | What counts as dangerous | Every silent corruption | Mine: conservative |
+| 20 | What counts as an upset | A bit flip in a flip-flop; glitches in logic, clock and reset are tested separately | Mine: simplification |
+| 21 | Process | A 130 nm-class open PDK | Mine |
+
+Two rules apply once the spec is frozen:
+
+- **The baseline must pass; the stretch is only measured.** The fault-injection limit is a pass criterion at the baseline level. At the stretch level I report the result without requiring a pass.
+- **The limit is recomputed once.** Row 17 is replaced by the synthesised flip-flop count and the limit is recalculated from the same formula, before any injection results exist. No other row changes after the freeze.
