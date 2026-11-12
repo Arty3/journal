@@ -8,6 +8,7 @@ import { remarkAlert } from 'remark-github-blockquote-alert';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeMathTextUnderscores from './src/lib/rehypeMathTextUnderscores.mjs';
+import rehypeMathBlankLineRows from './src/lib/rehypeMathBlankLineRows.mjs';
 import rehypeLazyImages from './src/lib/rehypeLazyImages.mjs';
 import { withLastmod } from './src/lib/sitemapDates.mjs';
 
@@ -45,6 +46,10 @@ export default defineConfig({
                     },
                 ],
                 rehypeMathTextUnderscores,
+                // Blank lines between equations in a display block
+                // become row breaks, so they stack instead of running
+                // together on one line.
+                rehypeMathBlankLineRows,
                 [
                     rehypeKatex,
                     {

@@ -6,11 +6,12 @@ tags:
   - asic
   - rtl
   - physics
+  - math
   - radiation
   - systemverilog
 draft: false
-written: september 2026
-project: october 2026 - present
+written: september 2026 - present
+project: november 2026 - present
 status: ongoing
 ---
 
@@ -520,19 +521,11 @@ The question CERN created and left unanswered was different:
 
 Could I take the kind of problem I would have been hired to work on, with the background I actually have now, and make something real out of it?
 
-There was no longer going to be an interview or experience which answered that for me.
+There was no longer going to be an interview or experience which answered that for me. So I started thinking about another way to ask it. The role was not abstract. It existed because there was actual hardware to design.
 
-So I started thinking about another way to ask it.
+I knew roughly what kind of work it was, and I had spent weeks studying specifically because I wanted to be prepared to do it. There is nothing stopping me from trying to build my own version.
 
-The role was not abstract. It existed because there was actual hardware to design.
-
-I knew roughly what kind of work it was, and I had spent weeks studying specifically because I wanted to be prepared to do it.
-
-There is nothing stopping me from trying to build my own version.
-
-If I fail, for whatever reason, that is more useful than not even trying. I am all about failing after all.
-
-And if I succeed, also great.
+If I fail, for whatever reason, that is more useful than not even trying. I am all about failing after all. And if I succeed, also great.
 
 So that is what this entry is about.
 
@@ -567,3 +560,145 @@ Fifth, a design review by somebody who does this professionally, with the spec, 
 And finally, a written list of everything it does not do and everything I know is wrong with it. The limitations I can name are worth more than the ones I have not found yet.
 
 If the result meets all of that, I will consider the question answered. If it does not, I will at least know exactly which part I could not do, which is still a better answer than the one I have now.
+
+## Preliminaries
+
+I think a good place to start is some basic research: understanding the environment the chip would live in, what it would measure, and what it would have to survive.
+
+### CROME and ACCURATE
+
+From what I gather, CERN's radiation safety system is called CROME. CROME itself isn't being replaced or anything. What does seem to be getting replaced is its front-end chip, and what I applied for was the digital half of that new chip.
+
+Their [slides](https://indico.cern.ch/event/1655400/contributions/6987580/attachments/3242435/5784544/ACCURATE%20ASIC_SarathMohanan_MUG2026.pdf) say "the commercial part used in CROME radiation monitors reached EOL". So the stated reason is obsolescence, not really a better system.
+
+What seems to be replacing it is an in-house current-digitiser chip family called ACCURATE, in 130 nm (though not the whole family: ACCURATE 0 was 22 nm). ACCURATE 2A is fully characterised, integrated into the CROME environment, and in system tests. ACCURATE 3, which is three separate test chips rather than one, had "just started" characterisation in March 2026, and ACCURATE 4 is a possibility, depending on those results.
+
+The slide diagram for ACCURATE 3 shows the comparator outputs going to an FPGA, with the clock and enable coming back. They also asked for RISC-V and SoC-submodule experience, and mentioned an integration team. Together, these suggest the next generation moves that FPGA logic onto the chip, though no source states this. For what it's worth, ACCURATE 2M (2021) already had on-chip digital with a serial output.
+
+For my spec, the slides do give the interface that the chip would sit behind, although the numbers come from different chips. Chip 3 of ACCURATE 3 has:
+
+- Five comparator outputs, one of them a positive-current comparator
+- Reference capacitors from 100 fF to 4 pF, which set the charge per pulse
+- Selectable feedback capacitors of 500 fF, 4.5 pF, and 50 pF
+
+Chip 1 of ACCURATE 3 has a leakage channel, and the 4 fA to 20 µA input range is the 2A's.
+
+One thing does reshape the question a bit: the chip is the digital back-end of a current digitiser, not a dose-rate computer.
+
+In ACCURATE 3, the analogue side integrates chamber current and cancels it with fixed packets of reference charge. The digital side receives comparator outputs and supplies the clock and enable. Dose conversion, alarms, and interlocks live downstream in CROME's processing unit.
+
+CROME also runs on commercial Zynq and discrete parts, and the chambers connect over cables of variable length. As far as I gather, the electronics sit in fairly mild locations, so we aren't out here saving people from nuclear meltdowns.
+
+### What Should the Chip Detect?
+
+At system level nothing changes: ambient dose equivalent rate in mixed, pulsed fields. At the chip boundary, this becomes:
+
+1. Charge: counted in weighted packets from four reference capacitors (100 fF, 500 fF, 1 pF, 4 pF). The diagram shows four comparator thresholds alongside them. My reading is that each capacitor has its own threshold, with the bigger packets balancing bigger currents, but the pairing is not stated.
+2. Range: 4 fA to 20 µA on the 2A version. Assuming a 1 V reference, that is one packet every 25 s at the bottom and about 5 MHz at the top. This estimate combines the 2A's range with Chip 3's capacitors, so it is only indicative.
+3. Resolution: 0.2 fA on the 2A version. This comes from a "direct slope current measurement method" used alongside current-to-frequency conversion. Packet counting alone cannot give it.
+4. Bursts: a 100 nC pulse would be roughly 25,000 of the largest packets. I have not been able to confirm the 100 nC figure against a source, so it is a placeholder. No packet may be lost while a burst drains, and saturation must be flagged.
+5. Leakage correction: chip leakage on the 2A is +3.8 fA, the same size as the smallest signal. In ACCURATE 3, Chip 1 adds a leakage channel and Chip 3 a positive-current comparator for this.
+6. Outputs: digitised current and accumulated charge over a serial link, plus status flags.
+
+### What Should It Be Hardened Against?
+
+Nothing I found ties a radiation level to CROME or to the new chip, so I borrowed two reference levels. They come from an [R2E talk](https://indico.cern.ch/event/1137792/contributions/4792483/attachments/2416098/4134406/2022-03_R2E_CERN-KUKA.pdf) about LHC accelerator electronics, in a table headed "Indicative values for HL-LHC conditions – not to be taken as specifications!":
+
+| **Level** | **High-energy hadrons per cm$^2$ per year** | **Lifetime dose** | **Upsets per chip per year (my estimate)** |
+|-|-|-|-|
+| Baseline (alcove) | $10^9$ | 10 Gy | $\sim 0.1$ |
+| Stretch (dispersion suppressor) | $10^{11}$ | 1 kGy | $\sim 10$ |
+
+An "alcove" is a shielded side room off the LHC tunnel, where equipment racks sit behind concrete or iron shielding. The dispersion suppressor is in the LHC tunnel itself. The levels are simulated projections at rack position below the magnets, not measurements next to the beam line.
+
+The upsets column is not CERN's. It is my own number, derived from the hadron figures by assuming 10,000 flops and $10^{-14}$ cm$^2$ per bit, both of which are just my assumptions for now.
+
+There are also thermal neutrons, which matter more at baseline, because shielded areas have up to 150 times more of them than high-energy hadrons.
+
+### The Safety Budget
+
+SIL 2 allows under $10^{-6}$ dangerous failures per hour. Even 0.1 upsets per year is about $10^{-5}$ per hour, so even if the chip had that whole budget to itself, no more than about 9% of upsets may corrupt silently at baseline. At the stretch level, that drops to roughly 1 in 1,100.
+
+I can't simply multiply these rates across a fleet, either. CERN's whole monitoring network, which CROME is meant to harmonise over time, is about 800 channels, but that would assume every channel sits at alcove-level flux, and as far as I gather the electronics sit in fairly mild locations.
+
+All of this turns the fault-injection criterion into a number: the silently-corrupt fraction, with error bars, against those two limits:
+
+```math
+\begin{aligned}
+\lambda_{\mathrm{SEU}} &= \frac{\Phi \,\sigma\, N_{\mathrm{ff}}}{T_{\mathrm{yr}}},
+\qquad T_{\mathrm{yr}} = 8760\ \mathrm{h} \\[6pt]
+f_{\max} &= \frac{\mathrm{PFH}_{\mathrm{alloc}}}{\lambda_{\mathrm{SEU}}}
+         = \frac{\mathrm{PFH}_{\mathrm{alloc}}\; T_{\mathrm{yr}}}{\Phi \,\sigma\, N_{\mathrm{ff}}} \\[6pt]
+\hat{f} &= \frac{k}{n} \\[6pt]
+f_{L} &= B^{-1}\!\left(\tfrac{\alpha}{2};\; k,\; n-k+1\right),
+\qquad
+f_{U} = B^{-1}\!\left(1-\tfrac{\alpha}{2};\; k+1,\; n-k\right) \\[6pt]
+f_{U}^{(1)} &= B^{-1}\!\left(1-\alpha;\; k+1,\; n-k\right) \;\le\; f_{\max} \\[6pt]
+f_{U}^{(1)}\big|_{k=0} &= 1-\alpha^{1/n} \approx \frac{-\ln\alpha}{n},
+\qquad
+n \;\ge\; \frac{\ln\alpha}{\ln\!\left(1-f_{\max}\right)} \approx \frac{-\ln\alpha}{f_{\max}}
+\end{aligned}
+```
+
+**Where:**
+
+- $\Phi$ is the high-energy hadron fluence per cm$^2$ per year ($10^9$ baseline, $10^{11}$ stretch).
+- $\sigma$ is the upset cross-section per bit ($10^{-14}$ cm$^2$, which is my assumption).
+- $N_{\mathrm{ff}}$ is the number of flops (currently a placeholder of 10,000).
+- $\mathrm{PFH}_{\mathrm{alloc}}$ is the dangerous failure rate allocated to the chip ($10^{-7}$ per hour, my choice of a 10% share of SIL 2).
+- $B^{-1}(p; a, b)$ is the quantile function of the Beta distribution, i.e. the inverse regularised incomplete beta function.
+- $\alpha$ is 0.05 for 95% confidence, which gives the "3 divided by $n$" rule, since $-\ln 0.05 \approx 3$.
+
+The interval assumes injections are independent and uniformly random over flops and time. The lower bound $f_L$ is defined as $0$ when $k = 0$.
+
+Plugging in the numbers:
+
+```math
+f_{\max}^{\mathrm{base}} = \frac{10^{-7}\cdot 8760}{10^{9}\cdot 10^{-14}\cdot 10^{4}} = 8.76\times10^{-3},
+\qquad
+f_{\max}^{\mathrm{stretch}} = \frac{10^{-7}\cdot 8760}{10^{11}\cdot 10^{-14}\cdot 10^{4}} = 8.76\times10^{-5}
+
+n_{\mathrm{base}} \ge \frac{\ln 0.05}{\ln(1-8.76\times10^{-3})} \approx 341,
+\qquad
+n_{\mathrm{stretch}} \ge \frac{\ln 0.05}{\ln(1-8.76\times10^{-5})} \approx 3.42\times10^{4}
+```
+
+So with the chip's 10% share of the budget, at most about 0.9% of upsets may corrupt silently at baseline, and at most about 0.009% at the stretch level. These are ten times tighter than the whole-budget figures above (about 9% and 1 in 1,100), and passing them with zero silent corruptions takes about 341 injections at baseline and about 34,200 at the stretch level.
+
+Of course, this is based on three assumptions I made, so please treat these numbers as provisional until the design exists:
+
+1. Allowed dangerous failure rate for the chip: $10^{-7}$ per hour. That is 10% of the SIL 2 ceiling of $10^{-6}$ per hour, and the share is my choice.
+2. Upset cross-section: $10^{-14}$ cm$^2$ per bit, which is just the typical order for 65 to 130 nm.
+3. Flop count: 10,000, which is literally just a placeholder.
+
+What's left to figure out now is the reference voltage, who closes the charge-balancing loop, how the direct slope measurement fits in, the serial protocol, and the clock frequency.
+
+### Sources
+
+**CROME system**
+
+- [Towards a novel modular architecture for CERN radiation monitoring (summary)](https://read.qxmd.com/read/27909154/towards-a-novel-modular-architecture-for-cern-radiation-monitoring)
+- [Towards a novel modular architecture for CERN radiation monitoring (publisher)](https://academic.oup.com/rpd/article/173/1-3/240/2623051)
+- [CROME System page](https://crome.web.cern.ch/crome-system)
+- [EP-ESE seminar on CROME](https://indico.cern.ch/event/938864/?view=event)
+- [CERN HSE: femtoamp measurement](https://hse.cern/content/femtoamp-measurement)
+- [30 Years of Electronics Evolution for CERN Safety Radiation Monitoring](https://bohrium.dp.tech/paper/arxiv/38be797004085ed3bb8f1df6d3b673fab692972abce61c2a2aef9967fbee4a76)
+
+**ACCURATE front-end ASIC**
+
+- [ACCURATE sub-femtoampere current digitiser ASIC, March 2026 slides](https://indico.cern.ch/event/1655400/contributions/6987580/attachments/3242435/5784544/ACCURATE%20ASIC_SarathMohanan_MUG2026.pdf)
+- [Toward CROME next front-end ASIC](https://crome.web.cern.ch/?p=578)
+- [Accurate Front End (ASIC)](https://crome.web.cern.ch/?p=559)
+- [ACCURATE pulsed radiation slides, 2022](https://indico.cern.ch/event/1183422/contributions/5166304/attachments/2558584/4415073/ACCURATE_PulsRad.pdf)
+- [High dose-per-pulse monitoring system using ionisation chambers](https://crome.web.cern.ch/?p=565)
+- [ACCURATE 2A, CERN knowledge transfer report 2024](https://kt-report-2024.web.cern.ch/?p=359)
+- [ACCURATE 2 technical description](https://indico.cern.ch/event/1323172/contributions/5592856/attachments/2726180/4738205/Techdescription_Accurate.pdf)
+- [Towards the next generation of CERN radiation monitoring front end ASICs (TWEPP 2021)](https://indico.cern.ch/event/1019078/contributions/4443943)
+- [Towards the next generation of CERN radiation monitoring front end ASICs (JINST)](https://iopscience.iop.org/article/10.1088/1748-0221/17/04/C04029)
+- [Design of a mixed-signal ASIC for the front-end electronics of ionisation chambers](https://semiengineering.com/design-of-a-mixed-signal-asic-for-the-front-end-electronics-of-ionisation-chambers)
+
+**Radiation environment**
+
+- [Reliable electronics in a radiation environment, R2E, March 2022 (indicative HL-LHC levels table, slide 10)](https://indico.cern.ch/event/1137792/contributions/4792483/attachments/2416098/4134406/2022-03_R2E_CERN-KUKA.pdf)
+- [Strategy for Radiation Tolerance Assurance of the A&T electronic Equipment, 2014](https://indico.cern.ch/event/277669/contributions/1623330/attachments/506150/698763/AMICSA2014_AT_rat-tol-strategy_v2.pdf)
+- [R2E-related MD: slow controlled losses for RadMon/BLM cross-checks (thermal neutron ratio)](https://sapinski.web.cern.ch/physics/pub/LHCBLM/ATS_Note_R2E_MD_July11_e.pdf)

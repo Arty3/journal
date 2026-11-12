@@ -1,12 +1,16 @@
 ---
 import {
     projectBounds,
+    projectOngoing,
     readingTime,
     readingTimeLabel,
+    writingInProgress,
+    writtenBounds,
+    writtenLabel,
     writtenSortKey,
     type Entry,
 } from '../lib/entries';
-import { formatDate, MONTHS, parseSpan, type DatePoint } from '../lib/dates';
+import { MONTHS, parseSpan, type DatePoint } from '../lib/dates';
 import { allTagHues } from '../lib/tagColors';
 import { listThumbnail } from '../lib/thumbnails';
 
@@ -64,14 +68,17 @@ const statusLabel = (status: string | undefined) =>
     {
         entries.map((entry, index) => {
             const date = when(entry);
-            const written = formatDate(entry.data.written);
+            const written = writtenLabel(entry);
             const status = entry.data.status;
             return (
                 <li
                     data-order={index}
                     data-project={projectBounds(entry).start}
                     data-project-end={projectBounds(entry).end}
+                    data-project-active={Number(projectOngoing(entry))}
                     data-written={writtenSortKey(entry)}
+                    data-written-start={writtenBounds(entry).start}
+                    data-written-active={Number(writingInProgress(entry))}
                     data-reading={readingTime(entry)}
                     data-tags={entry.data.tags.join('|')}
                 >
@@ -90,7 +97,7 @@ const statusLabel = (status: string | undefined) =>
                         <p class="meta">
                             {written && (
                                 <>
-                                    <span>Written {written}</span>
+                                    <span>{written}</span>
                                     <span class="sep" aria-hidden="true">·</span>
                                 </>
                             )}

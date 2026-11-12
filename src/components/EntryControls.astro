@@ -1,5 +1,5 @@
 ---
-import { projectBounds, writtenSortKey, type Entry } from '../lib/entries';
+import { projectBounds, writtenBounds, type Entry } from '../lib/entries';
 
 interface Props {
     entries: Entry[];
@@ -10,16 +10,15 @@ const { entries } = Astro.props;
 const yearOf = (key: number) => Math.floor(key / 12);
 const newestFirst = (years: Iterable<number>) => [...new Set(years)].sort((a, b) => b - a);
 
-const writtenYears = newestFirst(entries.map(writtenSortKey).map(yearOf));
-/* a project spanning years is offered under each year it touched */
-const projectYears = newestFirst(
-    entries.flatMap((entry) => {
-        const { start, end } = projectBounds(entry);
-        const years = [];
-        for (let year = yearOf(start); year <= yearOf(end); year++) years.push(year);
-        return years;
-    }),
-);
+/* a range spanning years is offered under each year it touched */
+const yearsTouched = ({ start, end }: { start: number; end: number }) => {
+    const years = [];
+    for (let year = yearOf(start); year <= yearOf(end); year++) years.push(year);
+    return years;
+};
+
+const writtenYears = newestFirst(entries.flatMap((entry) => yearsTouched(writtenBounds(entry))));
+const projectYears = newestFirst(entries.flatMap((entry) => yearsTouched(projectBounds(entry))));
 ---
 
 <form class="entry-controls">
@@ -105,6 +104,9 @@ const projectYears = newestFirst(
         /* the project ran through the year: started by its end, finished no earlier */
         const projectTouches = (item: HTMLElement, year: number) =>
             yearOf(item, 'project') <= year && yearOf(item, 'projectEnd') >= year;
+        /* likewise for the writing; its sort key is the end of the range */
+        const writtenTouches = (item: HTMLElement, year: number) =>
+            yearOf(item, 'writtenStart') <= year && yearOf(item, 'written') >= year;
 
         const activeTagLinks = () => [
             ...document.querySelectorAll<HTMLAnchorElement>('.tag-cloud a.active'),
@@ -170,9 +172,14 @@ const projectYears = newestFirst(
             const items = [...list.querySelectorAll<HTMLLIElement>(':scope > li')];
             const key = sortSelect.value;
             const direction = descending ? -1 : 1;
+            /* within the same month, a project still ongoing (or an entry
+               still being written) counts as the more recent; reading
+               time has no such flag, so it reads as 0 on both sides */
+            const active = `${key}Active`;
             items.sort(
                 (a, b) =>
                     direction * (value(a, key) - value(b, key)) ||
+                    direction * (value(a, active) - value(b, active)) ||
                     value(a, 'order') - value(b, 'order'),
             );
 
@@ -192,7 +199,7 @@ const projectYears = newestFirst(
                 const passesFilters =
                     reading >= min &&
                     reading <= max &&
-                    (writtenYear === null || yearOf(item, 'written') === writtenYear) &&
+                    (writtenYear === null || writtenTouches(item, writtenYear)) &&
                     (projectYear === null || projectTouches(item, projectYear));
                 if (passesFilters) pool.push(itemTags);
                 const visible =

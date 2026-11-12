@@ -487,6 +487,17 @@ const copyrightYears = buildYear > firstYear ? `${firstYear}–${buildYear}` : `
         height: auto;
     }
 
+    /*
+     * Inline audio (an entry embedding a track): the browser's own
+     * controls, sized like the entry images so it sits in the column
+     * rather than spanning it.
+     */
+    audio {
+        display: block;
+        width: 30%;
+        max-width: 100%;
+    }
+
     hr {
         border: none;
         border-top: 1px solid var(--border);
@@ -801,6 +812,10 @@ const copyrightYears = buildYear > firstYear ? `${firstYear}–${buildYear}` : `
          * for the wide desktop column; on phones let them fill it.
          */
         main img[width] {
+            width: 100%;
+        }
+
+        audio {
             width: 100%;
         }
     }

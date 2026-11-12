@@ -47,13 +47,18 @@ project: october 2026 - present
 
 On the page they render capitalized, with an en dash for ranges
 ("Developed March – August 2026"); a range ending in `present` shows
-as "Started October 2026" alongside the status. `written` takes a single date, not a range.
+as "Started October 2026" alongside the status. `written` takes the same
+formats, for an entry written over time; a range ending in `present` shows
+as "Started writing in September 2026". It sorts and counts as "latest" by
+the end of its range.
 `status` is lowercase too; only `ongoing` is shown on the page, the
 others are kept as internal metadata.
 
 The list at `/entries/` is sorted by project date, latest first. The sort
 key is when the project *started*, so a project begun later ranks as more
-recent however long it ran. The "Project" year filter matches every year
+recent however long it ran; among projects started the same month, ongoing
+ones come first (likewise, sorted by time of writing, entries still being
+written come before finished ones of the same month). The "Project" year filter matches every year
 a range touches (a `2024 - 2025` project shows under both years, and
 `present` runs to the build's current year). Entries without a `project`
 fall back to their `written` date, and finally to the git commit that

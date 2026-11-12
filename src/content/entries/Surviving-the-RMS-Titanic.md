@@ -1,6 +1,6 @@
 ---
 title: Surviving the RMS Titanic
-description: Who needs PyTorch anyways?
+description: What's a PyTorch?
 tags:
   - machine learning
   - data science

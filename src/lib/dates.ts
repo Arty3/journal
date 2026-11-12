@@ -88,12 +88,6 @@ export function parseSpan(text: string | undefined | null): DateSpan | null {
     return { start, end };
 }
 
-/** Whether a frontmatter date is a single point rather than a range. */
-export function isSinglePoint(text: string): boolean {
-    const span = parseSpan(text);
-    return span !== null && span.end === undefined;
-}
-
 /**
  * The month indices a span covers: its start, and its end — the end
  * of the end point's year when no month was given, the current month
@@ -131,10 +125,4 @@ export function formatSpan(span: DateSpan): string {
         return `${capitalize(MONTHS[start.month])}${RANGE_DASH}${capitalize(MONTHS[end.month])} ${start.year}`;
     }
     return `${formatPoint(start)}${RANGE_DASH}${formatPoint(end)}`;
-}
-
-/** Formats a frontmatter date as written, or null when it doesn't parse. */
-export function formatDate(text: string | undefined): string | null {
-    const span = parseSpan(text);
-    return span ? formatSpan(span) : null;
 }

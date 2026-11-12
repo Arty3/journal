@@ -1,6 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
-import { isSinglePoint, parseSpan } from './lib/dates';
+import { parseSpan } from './lib/dates';
 
 /** The statuses an entry may carry, as written in frontmatter. */
 export const STATUSES = ['completed', 'abandoned', 'ongoing'] as const;
@@ -20,10 +20,12 @@ const entries = defineCollection({
         description: z.string(),
         tags: z.array(z.string()).default([]),
         draft: z.boolean().default(false),
-        /** When the entry itself was written: "august 2026" or "2026". */
-        written: dateSpan('"august 2026"')
-            .refine(isSinglePoint, { message: 'written is a single date, not a range' })
-            .optional(),
+        /**
+         * When the entry itself was written: "august 2026", "2026", or
+         * a range for one written over time: "september - november 2026",
+         * "september 2026 - present".
+         */
+        written: dateSpan('"august 2026" or "september 2026 - present"').optional(),
         /**
          * When the project took place: "2024", "march 2026",
          * "2024 - 2025", "march - august 2026", "october 2026 - present".

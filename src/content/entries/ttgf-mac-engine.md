@@ -10,7 +10,7 @@ tags:
   - tapeout
   - machine learning
 draft: false
-written: october 2026
+written: october 2026 - present
 project: may 2026 - present
 status: ongoing
 thumbnail: /assets/entries/ttgf-mac-engine/chip-3d-render.png

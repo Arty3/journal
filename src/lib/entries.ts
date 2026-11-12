@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { formatDate, formatSpan, parseSpan, pointIndex, spanBounds } from './dates';
+import { formatSpan, parseSpan, spanBounds } from './dates';
 /* git-derived created/updated times live in a plain Node module so the
    build config can share them (sitemap lastmod) */
 import { createdAt, lastUpdated } from './gitDates.mjs';
@@ -33,17 +33,61 @@ export function projectSortKey(entry: Entry): number {
 }
 
 /**
- * Month index an entry's writing sorts under: the `written` frontmatter,
- * falling back to the git creation month.
+ * Whether the project is still running: its `status` says so, or,
+ * without a status, its `project` range ends in "present". Among
+ * projects sorting under the same month, an ongoing one ranks as the
+ * more recent.
  */
-export function writtenSortKey(entry: Entry): number {
-    const span = parseSpan(entry.data.written);
-    return span ? pointIndex(span.start) : monthOf(entry.created);
+export function projectOngoing(entry: Entry): boolean {
+    if (entry.data.status) return entry.data.status === 'ongoing';
+    return parseSpan(entry.data.project)?.end === 'present';
 }
 
 /**
- * All published entries, latest project first. Ties break by when the
- * entry was written: latest `written` date first, then git creation time.
+ * The month indices an entry's writing covers, from the `written`
+ * frontmatter, falling back to the git creation month. A single date
+ * covers just its own month; "present" runs to the current month.
+ */
+export function writtenBounds(entry: Entry): { start: number; end: number } {
+    const span = parseSpan(entry.data.written);
+    if (span) return spanBounds(span);
+    const created = monthOf(entry.created);
+    return { start: created, end: created };
+}
+
+/**
+ * Month index an entry's writing sorts under: when it was last being
+ * written. Unlike a project, an entry written over a range ranks by
+ * the range's end, so one still in progress counts as the most recent.
+ */
+export function writtenSortKey(entry: Entry): number {
+    return writtenBounds(entry).end;
+}
+
+/**
+ * Whether the entry is still being written (a `written` range ending
+ * in "present"). Among entries sorting under the same month, one in
+ * progress ranks as the more recent.
+ */
+export function writingInProgress(entry: Entry): boolean {
+    return parseSpan(entry.data.written)?.end === 'present';
+}
+
+/** Project order, latest first; ongoing wins within the same month. */
+const byProject = (a: Entry, b: Entry) =>
+    projectSortKey(b) - projectSortKey(a) ||
+    Number(projectOngoing(b)) - Number(projectOngoing(a));
+
+/** Writing order, latest first; in progress wins within the same month. */
+const byWritten = (a: Entry, b: Entry) =>
+    writtenSortKey(b) - writtenSortKey(a) ||
+    Number(writingInProgress(b)) - Number(writingInProgress(a));
+
+/**
+ * All published entries, latest project first; among projects of the
+ * same month, ongoing ones come before finished ones. Remaining ties
+ * break by when the entry was written: latest `written` date first
+ * (still being written before already written), then git creation time.
  */
 export async function sortedEntries(): Promise<Entry[]> {
     const entries = await getCollection('entries', ({ data }) => !data.draft);
@@ -55,25 +99,29 @@ export async function sortedEntries(): Promise<Entry[]> {
         }))
         .sort(
             (a, b) =>
-                projectSortKey(b) - projectSortKey(a) ||
-                writtenSortKey(b) - writtenSortKey(a) ||
+                byProject(a, b) ||
+                byWritten(a, b) ||
                 b.created.getTime() - a.created.getTime(),
         );
 }
 
 /**
  * The most recently written entry, judged by the `written` date (git
- * creation month as fallback). Entries written the same month tie-break
- * on when they were added to the journal (git creation time), then on
- * the newest project — never on the last edit, which would let a typo
- * fix displace the actual latest entry.
+ * creation month as fallback). Among entries written the same month,
+ * one still being written comes first. Several still being written
+ * tie-break on the newest project: when each file was added says
+ * nothing about which is being worked on now. The rest tie-break on
+ * when they were added to the journal (git creation time), then on the
+ * newest project — never on the last edit, which would let a typo fix
+ * displace the actual latest entry.
  */
 export function latestWritten(entries: Entry[]): Entry | undefined {
     return [...entries].sort(
         (a, b) =>
-            writtenSortKey(b) - writtenSortKey(a) ||
+            byWritten(a, b) ||
+            (writingInProgress(a) && writingInProgress(b) ? byProject(a, b) : 0) ||
             b.created.getTime() - a.created.getTime() ||
-            projectSortKey(b) - projectSortKey(a),
+            byProject(a, b),
     )[0];
 }
 
@@ -99,16 +147,28 @@ function projectLabel(entry: Entry): string | undefined {
 }
 
 /**
+ * The writing dates for display: "Written September 2026", or
+ * "Started writing in September 2026" for an entry still being
+ * written (a range ending in "present").
+ */
+export function writtenLabel(entry: Entry): string | undefined {
+    const span = parseSpan(entry.data.written);
+    if (!span) return undefined;
+    return span.end === 'present'
+        ? `Started writing in ${formatSpan({ start: span.start })}`
+        : `Written ${formatSpan(span)}`;
+}
+
+/**
  * The metadata line under an entry's description — "Developed
  * March – August 2026 · Written September 2026 · Ongoing" — with the
  * frontmatter dates rendered in display form. Undefined when the entry
  * has nothing to show.
  */
 export function metaLine(entry: Entry): string | undefined {
-    const written = formatDate(entry.data.written);
     const parts = [
         projectLabel(entry),
-        written && `Written ${written}`,
+        writtenLabel(entry),
         visibleStatus(entry),
     ].filter(Boolean);
     return parts.length > 0 ? parts.join(' · ') : undefined;

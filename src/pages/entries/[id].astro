@@ -2,8 +2,8 @@
 import 'katex/dist/katex.min.css';
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { readingTimeLabel, sortedEntries } from '../../lib/entries';
-import { formatDate, formatSpan, parseSpan } from '../../lib/dates';
+import { readingTimeLabel, sortedEntries, writtenLabel } from '../../lib/entries';
+import { formatSpan, parseSpan } from '../../lib/dates';
 import { allTagHues } from '../../lib/tagColors';
 
 export async function getStaticPaths() {
@@ -38,7 +38,7 @@ const projectLabel = projectSpan
         ? `Started ${formatSpan({ start: projectSpan.start })}`
         : `Developed ${formatSpan(projectSpan)}`
     : undefined;
-const writtenLabel = formatDate(entry.data.written);
+const written = writtenLabel(entry);
 ---
 
 <Base
@@ -66,9 +66,9 @@ const writtenLabel = formatDate(entry.data.written);
                     )
                 }
                 {
-                    writtenLabel && (
+                    written && (
                         <>
-                            <span>Written {writtenLabel}</span>
+                            <span>{written}</span>
                             <span class="sep" aria-hidden="true">·</span>
                         </>
                     )
