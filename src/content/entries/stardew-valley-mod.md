@@ -216,7 +216,7 @@ And in-game:
 
 Finally, this felt a lot closer to what I had in mind. Not because every pixel was perfect, but because the character actually read properly at game size.
 
-OH MY GOD, I just looked at this screenshot and realised the fourth animation has a few skin-shadow pixels that I didn't recolour. I thought, "Oh, this must just be something I fixed." I checked the final sprite sheet. I did NOT fix it. Motherfucker.
+OH MY GOD, I just looked at this screenshot and realised the fourth animation has a few skin-shadow pixels that I didn't recolour. I thought, "Oh, this must just be something I fixed." I checked the final sprite sheet. I did NOT fix it. fuck.
 
 At least I caught it now.
 
