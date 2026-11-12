@@ -573,7 +573,7 @@ Their [slides](https://indico.cern.ch/event/1655400/contributions/6987580/attach
 
 What seems to be replacing it is an in-house current-digitiser chip family called ACCURATE, in 130 nm (though not the whole family: ACCURATE 0 was 22 nm). ACCURATE 2A is fully characterised, integrated into the CROME environment, and in system tests. ACCURATE 3, which is three separate test chips rather than one, had "just started" characterisation in March 2026, and ACCURATE 4 is a possibility, depending on those results.
 
-The slide diagram for ACCURATE 3 shows the comparator outputs going to an FPGA, with the clock and enable coming back. They also asked for RISC-V and SoC-submodule experience, and mentioned an integration team. Together, these suggest the next generation moves that FPGA logic onto the chip, though no source states this. For what it's worth, ACCURATE 2M (2021) already had on-chip digital with a serial output.
+The slide diagram for ACCURATE 3 shows the comparator outputs going to an FPGA, with the clock and enable coming back. The job posting also asked for RISC-V and SoC-submodule experience, and mentioned an integration team. Together, these suggest the next generation moves that FPGA logic onto the chip, though no source states this. For what it's worth, ACCURATE 2M (2021) already had on-chip digital with a serial output.
 
 For my spec, the slides do give the interface that the chip would sit behind, although the numbers come from different chips. Chip 3 of ACCURATE 3 has:
 
@@ -595,10 +595,10 @@ At system level nothing changes: ambient dose equivalent rate in mixed, pulsed f
 
 1. Charge: counted in weighted packets from four reference capacitors (100 fF, 500 fF, 1 pF, 4 pF). The diagram shows four comparator thresholds alongside them. My reading is that each capacitor has its own threshold, with the bigger packets balancing bigger currents, but the pairing is not stated.
 2. Range: 4 fA to 20 µA on the 2A version. Assuming a 1 V reference, that is one packet every 25 s at the bottom and about 5 MHz at the top. This estimate combines the 2A's range with Chip 3's capacitors, so it is only indicative.
-3. Resolution: 0.2 fA on the 2A version. This comes from a "direct slope current measurement method" used alongside current-to-frequency conversion. Packet counting alone cannot give it.
+3. Resolution: 0.2 fA on the 2A version. This comes from a "direct slope current measurement method" used alongside current-to-frequency conversion. Packet counting alone cannot give it. My version times the interval between packets to one clock cycle. That gives fine resolution, but only one new value per packet, so one every 25 s at 4 fA. Whether it reaches 0.2 fA depends on the analogue side, which I am not building.
 4. Bursts: a 100 nC pulse would be roughly 25,000 of the largest packets. I have not been able to confirm the 100 nC figure against a source, so it is a placeholder. No packet may be lost while a burst drains, and saturation must be flagged.
-5. Leakage correction: chip leakage on the 2A is +3.8 fA, the same size as the smallest signal. In ACCURATE 3, Chip 1 adds a leakage channel and Chip 3 a positive-current comparator for this.
-6. Outputs: digitised current and accumulated charge over a serial link, plus status flags.
+5. Leakage correction: chip leakage on the 2A is +3.8 fA, the same size as the smallest signal. In ACCURATE 3, Chip 1 adds a leakage channel and Chip 3 a positive-current comparator for this. My chip has one channel and no leakage channel. It counts positive-current packets separately and leaves the correction to the host.
+6. Outputs: a running packet count per reference capacitor and two timestamps, sent over a serial link with status flags. The host turns these into current and accumulated charge.
 
 ### What Should It Be Hardened Against?
 
@@ -671,7 +671,7 @@ Of course, this is based on three assumptions I made, so please treat these numb
 2. Upset cross-section: $10^{-14}$ cm$^2$ per bit, which is just the typical order for 65 to 130 nm.
 3. Flop count: 10,000, which is literally just a placeholder.
 
-What's left to figure out now is the reference voltage, who closes the charge-balancing loop, how the direct slope measurement fits in, the serial protocol, and the clock frequency.
+Five things are still unpublished: the reference voltage, who closes the charge-balancing loop, how the direct slope measurement fits in, the serial protocol, and the clock frequency. I settle each by assumption in the next section.
 
 ### Sources
 
@@ -713,11 +713,11 @@ CERN didn't publish the details of the real chip, so the spec rests on the assum
 |---|---|---|---|
 | 1 | Analogue front-end | One integrator, four comparators for negative current, one for positive | Borrowed: ACCURATE 3 Chip 3 slides |
 | 2 | Reference capacitors | 100 fF, 500 fF, 1 pF, 4 pF, plus 100 fF for positive current | Borrowed: same slides |
-| 3 | Threshold-to-capacitor pairing | Each comparator threshold selects one capacitor, larger for larger currents | Mine: my reading of the diagram |
+| 3 | Threshold-to-capacitor pairing | Each comparator threshold selects one capacitor, larger for larger currents. The comparator outputs form a thermometer code. | Mine: my reading of the diagram |
 | 4 | Who triggers each charge packet | The digital side, which is this chip | Mine: my reading of the FPGA's role |
 | 5 | Reference voltage | 1 V, so packets of 0.1, 0.5, 1 and 4 pC | Mine: placeholder, not published |
 | 6 | Input current range | 4 fA to 20 µA | Borrowed: ACCURATE 2A, a different chip in the family |
-| 7 | Low-current method | Timing the integrator slope between threshold crossings | Mine: my reading of "direct slope measurement" |
+| 7 | Low-current method | Timing the interval between consecutive packets | Mine: my reading of "direct slope measurement" |
 | 8 | Comparator timing | Asynchronous to the chip clock | Mine |
 | 9 | Largest burst to survive | 100 nC | Mine: placeholder, from a figure I could not confirm at source |
 | 10 | External interface | SPI slave, checksum on every frame | Mine |
@@ -732,8 +732,11 @@ CERN didn't publish the details of the real chip, so the spec rests on the assum
 | 19 | What counts as dangerous | Every silent corruption | Mine: conservative |
 | 20 | What counts as an upset | A bit flip in a flip-flop; glitches in logic, clock and reset are tested separately | Mine: simplification |
 | 21 | Process | A 130 nm-class open PDK | Mine |
+| 22 | Channels | One | Mine |
+| 23 | Injection handshake | A one-clock-cycle pulse requests one packet; the front-end generates its own switch phases | Mine |
+| 24 | Front-end settling | Comparator outputs are valid one clock cycle after an injection pulse ends | Mine: needed for row 12 to hold |
 
 Two rules apply once the spec is frozen:
 
 - **The baseline must pass; the stretch is only measured.** The fault-injection limit is a pass criterion at the baseline level. At the stretch level I report the result without requiring a pass.
-- **The limit is recomputed once.** Row 17 is replaced by the synthesised flip-flop count and the limit is recalculated from the same formula, before any injection results exist. No other row changes after the freeze.
+- **The limit is recomputed once.** Row 17 is replaced by the synthesised flip-flop count and the limit is recalculated from the same formula, before any injection results exist. No other row changes after the freeze. No other row changes after the freeze. The area budget is not in this table; it is set once, when the RTL is complete.
