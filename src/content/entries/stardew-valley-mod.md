@@ -641,12 +641,32 @@ I guess this is as close to a final result as I can display.
 
 All that's left is for me and her to hop into a new save and play. Hopefully she doesn't think it's garbage.
 
-I'll update this entry once we do play. Thankfully, she doesn't look at this journal.
-
-See you soon!
-
 ---
 
-Thanks for reading!
+It's now been a little over a week. We got to play it yesterday, and overall I think it went well. She seemed very happy, which is always good, I suppose.
 
-I won't release the repository this time due to privacy.
+There were a couple of issues, though. As always with software, as soon as you bring it outside of a testing environment, something is cosmically bound to break, and this time was no different.
+
+Literally, within the first five or so minutes of playing, as we were having our first look at the NPC, she just decided to walk through a tree, making the tree explode in the process. Emily (the real one) absolutely loved it. She thought it was great and the best thing she'd seen so far; my engineer brain did not share her enthusiasm at first. Still, after the initial "oh shit", I found it funny as well.
+
+The second issue was when the NPC went back to her cave. I completely forgot that in the first few in-game days this is a thing:
+
+<img src="../../assets/entries/stardew-valley-mod/mines-block.png" width="50%" style="border-radius: 16px;" />
+
+Effectively, the mines are blocked off entirely. So imagine my panic when I saw her stuck, walking into the pile of rocks. Thankfully, the game had apparently anticipated this, and just made her walk through the rocks after a few seconds. Like it never happened.
+
+Those two bugs aside, the rest worked great, to my relief.
+
+Emily was happy to see I got her eye colour as well as her likes and dislikes right. Also, in her words: "Look at her hair! She's mogging me!", which was nice to hear.
+
+But maybe my favourite part was following the NPC back to the mines. Emily was expecting a house of sorts, or even a mansion, as she put it. But the NPC walked past every house, so Emily's next guess was "maybe Linus' tent?", only to watch her walk straight into the mines. I thought that was pretty funny.
+
+## Final Thoughts
+
+This project was pretty fun for me. I got to tackle my arch-nemesis for a good cause. I also think I did well, at least in the art department. Which is a problem now, because she wants me to draw her, on paper, by hand. You saw the result of that last time. So that's fairly concerning, but she did say she'll come travel with me to Asia this coming year if I do, so I suppose my hands are tied.
+
+There is something still lingering for me, though. I don't think I reached my own bar for scope. What I think happened was that I was just very excited to share this with her, and I rushed. Normally, I'd spend more time in order to take fewer shortcuts and make sure every loose end is tied up. This time, I feel like I somewhat cheated on the art by leaning on the website and Haley's sprites, and cut it short before adding more features like, you know, a house. The final product is still pretty good, and I am proud of it, but a lesson for next time is that I should slow down.
+
+That aside, I'd call this a success!
+
+Thanks for reading! I won't release the repository this time for privacy reasons.
